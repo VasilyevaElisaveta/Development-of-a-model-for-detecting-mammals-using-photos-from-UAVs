@@ -1,5 +1,6 @@
 venv/
 __pycache__/
+gradio/results/
 
 .gradio/
-.mypy_cache
+.mypy_cache/
