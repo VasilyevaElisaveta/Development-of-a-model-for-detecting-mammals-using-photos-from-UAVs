@@ -28,6 +28,6 @@ The main thing is to run the server not on port 8000, since the API runs on it.
 python manage.py runserver 8001
 ```
 
-<b>And finally go to http://127.0.0.1:8000 or other url depending on your port</b>
+<b>And finally go to http://127.0.0.1:8001 or other url depending on your port</b>
 <hr>
 Link to Google Drive: https://drive.google.com/drive/folders/1SZ--uB5IblpWTe6l_Tmqg0XXZIprMRzH?usp=sharing
