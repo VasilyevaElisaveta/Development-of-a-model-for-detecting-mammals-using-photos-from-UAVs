@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+DETMALS
+{% endblock %}
+
+{% block links %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/index_styles.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script> <script src="my-script.js"></script>
+{% endblock %}
+
+{% block header %}
+<div class="header-inner">
+  <div class="logo">
+    <img src="{% static 'images/logo1.png' %}" alt="Логотип" id="logo">
+  </div>
+  <nav>
+    <ul>
+      <li><a href="{% url 'homepage:index' %}" data-section="hero">Главная</a></li>
+      <li><a href="#" data-section="about">О нас</a></li>
+      <li><a href="#" data-section="team">Команда</a></li>
+      <li><a href="{% url 'detection:detect_mammals' %}" >Распознать</a></li>
+    </ul>
+  </nav>
+</div>    
+{% endblock %}
+
+{% block content %}
+<section id="hero" class="hero">
+  <div class="hero-background">
+      <img src="{% static 'images/фон.jpg' %}" alt="Фоновое изображение">
+  </div>
+  <div class="hero-content">
+      <h1>ДЕТЕКЦИЯ<br>МЛЕКОПИТАЮЩИХ</h1>
+      <button id="detailsButton" class="button">Подробнее</button>
+  </div>
+</section>
+
+<section id="about">
+  <h2>О НАС</h2>
+  <div class="about-grid">
+    <div class="about-column">
+      <img src="{% static 'images/database.png' %}" alt="Иконка 1">
+      <h3>БОЛЬШАЯ БАЗА ДАННЫХ</h3>
+      <p>Использованы датасеты разных млекопитающих для обучения модели</p>
+    </div>
+    <div class="about-column">
+      <img src="{% static 'images/accuracy.png' %}" alt="Иконка 2">
+      <h3>ВЫСОКАЯ ТОЧНОСТЬ РАСПОЗНАВАНИЯ</h3>
+      <p>Точность модели детекции от 0.85 по mAp</p>
+    </div>
+    <div class="about-column">
+      <img src="{% static 'images/media.png' %}" alt="Иконка 3">
+      <h3>РАЗНЫЕ ФОРМАТЫ</h3>
+      <p>Вы можете загружать фото и видео</p>
+    </div>
+  </div>
+</section>
+<div class="recognize-button-container">  
+  <a href="{% url 'detection:detect_mammals' %}" id="recognizeLinkAfterAbout">Распознать</a>
+</div>
+<section id="advantages">
+  <h2>ПРЕИМУЩЕСТВА ИСПОЛЬЗОВАНИЯ ПБЛА</h2>
+  <div class="advantages-grid">
+    <div class="advantages-column">
+      <img src="{% static 'images/тигры.jpg' %}" alt="Преимущество 1">
+      <h3>Воздействие на экосистему</h3>
+      <p>БПЛА позволяют проводить мониторинг с минимальным вмешательством, что способствует сохранению естественной среды обитания</p>
+    </div>
+    <div class="advantages-column">
+      <img src="{% static 'images/пингвины.jpg' %}" alt="Преимущество 2">
+      <h3>Адаптивность к условиям</h3>
+      <p>Модель обнаружения млекопитающих может быть адаптирована под различные условия и виды животных.</p>
+    </div>
+    <div class="advantages-column">
+      <img src="{% static 'images/мишка.jpg' %}" alt="Преимущество 3">
+      <h3>Сбор данных</h3>
+      <p>БПЛА позволяет автоматизировать процесс сбора и анализа данных, также позволяет охватить большую территорию.</p>
+    </div>
+  </div>
+</section>
+<div class="recognize-button-container">  
+  <a href="{% url 'detection:detect_mammals' %}" id="recognizeLinkAfterAbout">Распознать</a>
+</div>
+
+<section id="team">
+  <h2>Наша команда</h2>
+  <div class="team-members"></div>
+</section>
+
+<section id="contact">
+  <h2>Контакты</h2>
+  <div class="contact-info">
+    <div class="contact-item">
+      <img src="{% static 'images/mail.png' %}" alt="Иконка почты">
+      <p class="copyable-text" data-clipboard-text="EVVasilyeva@urfu.ru">EVVasilyeva@urfu.ru</p>
+    </div>
+    <div class="contact-item">
+      <img src="{% static 'images/tg.png' %}" alt="Иконка Telegram">
+      <p class="copyable-text" data-clipboard-text="@elizaveta_0_o">@elizaveta_0_o</p>
+    </div>
+  </div>
+</section>
+{% endblock %}  
+
+{% block script %}
+  <script src="{% static 'js/index_script.js' %}"></script>
+{% endblock %}
