@@ -2,7 +2,7 @@ venv/
 __pycache__/
 gradio/results/
 django+api/media/results
-dhango+api/media/uploaded
+django+api/media/uploaded
 
 .gradio/
 .mypy_cache/
