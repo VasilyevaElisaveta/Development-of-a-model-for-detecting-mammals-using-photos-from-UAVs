@@ -1,8 +1,8 @@
 venv/
 __pycache__/
-/results/
-/media/results
-/media/uploaded
+gradio/results/
+django+api/media/results
+dhango+api/media/uploaded
 
 .gradio/
 .mypy_cache/
