@@ -10,18 +10,21 @@ class Model:
     def __init__(self) -> None:
         self.__model = YOLO('api/models/mammals.pt')
 
-    def predict_image(self, image_path: str, save_folder: str, data_file: str):
+    def predict_image(self, image_path: str, save_folder: str, data_file: str, annotation_data: dict):
 
         results = self.__model(image_path, verbose=False)
 
         # image: ndarray = results[0].plot()
         image: ndarray = results[0].plot(labels=False, probs=False)
+        image_shape: tuple[int, int] = results[0].orig_shape
+        coordinates: list[list[float]] = results[0].boxes.xyxy.tolist()
+        classes: list[int] = list(map(int, results[0].boxes.cls.tolist()))
+        class_definition: dict[int, str] = self.__model.names
         FileManager.save_image(image, image_path, save_folder)
+        FileManager.save_annotation_data(annotation_data, image_path, image_shape, coordinates, classes, class_definition)
 
         detected_classes: dict = Counter(results[0].boxes.cls.tolist())
-        class_names: dict = self.__model.names
-        FileManager.save_detection_data(data_file, class_names, detected_classes, image_path)
-
+        FileManager.save_detection_data(data_file, class_definition, detected_classes, image_path)
 
     def track_video(self, video_path: str, save_folder: str, data_file: str):
         video_name: str = FileManager.get_file_name(video_path)

@@ -14,13 +14,12 @@ sys_path.append(str(Path(__file__).resolve().parent.parent))
 app = FastAPI()
 
 @app.post('/process/')
-async def test(file: UploadFile = File(...)) -> JSONResponse:
+async def process(file: UploadFile = File(...)) -> JSONResponse:
     file_path: str = os_path.join(MEDIA_DIR_UPLOADED_FILES, file.filename)
 
     if not FileManager.check_file_extension(file_path):
         return JSONResponse(content={"status": False, "error": FileManager.get_supported_file_extensions_message()})
         
-    with open(file_path, "wb") as f:
-        copyfileobj(file.file, f)
-    output_file: str = DetectionInterface.run(file_path)
+    FileManager.save_file(file.file, file_path)
+    output_file: str = DetectionInterface.run_detection(file_path)
     return JSONResponse(content={"status" : True, "processed_file": output_file})
