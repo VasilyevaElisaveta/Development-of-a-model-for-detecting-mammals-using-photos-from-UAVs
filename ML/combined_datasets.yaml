@@ -1,0 +1,7 @@
+
+train: /content/combined_dataset/train/images
+val: /content/combined_dataset/val/images
+test: /content/combined_dataset/test/images
+
+nc: 2
+names: ['cow', 'deer']
