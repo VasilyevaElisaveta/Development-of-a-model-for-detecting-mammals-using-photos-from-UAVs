@@ -1,1 +1,2 @@
 Penguins dataset: https://drive.google.com/file/d/1zInMcB2rxDWRbeZ70oCkI5tmptNbFRCR/view?usp=drive_link
+Cows dataset: https://drive.google.com/drive/folders/13M6wRuHq6lu5__tXHsSq0Ne5SA1aD9XK?usp=sharing
