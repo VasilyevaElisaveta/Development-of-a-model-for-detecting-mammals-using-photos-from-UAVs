@@ -3,6 +3,8 @@ __pycache__/
 gradio/results/
 django+api/media/results
 django+api/media/uploaded
+django+api_V2/media/results
+django+api_V2/media/uploaded
 
 .gradio/
 .mypy_cache/
