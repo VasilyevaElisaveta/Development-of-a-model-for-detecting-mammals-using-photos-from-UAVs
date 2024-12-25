@@ -1,0 +1,343 @@
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
+    height: 100%;
+    background-color: #313743
+}
+h1, h2, h3, p, button {
+    color: #ffffff; 
+}
+.advantages-grid {
+    display: flex;
+    justify-content: center; 
+    align-items: stretch; 
+    gap: 50px; 
+    flex-wrap: wrap;
+}
+.advantages-column img {
+    max-width: 270px; 
+    height: 150px;
+    margin-bottom: 15px;
+    display: block;
+    object-fit: cover; 
+    max-width: 100%;
+}
+
+.advantages-column {
+    text-align: center; /* Centers text within each column */
+    flex: 1 0 20%; /* Distribute space between columns (adjust 30% as needed). 1 is grow factor */
+    max-width: 250px;
+    box-sizing: border-box;
+    margin-bottom: 20px; /* Spacing between columns */
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0);
+    transition: background-color 0.5s ease;
+    padding: 20px 0;
+    z-index: 10;
+}
+
+header.sticky {
+    background-color: #313743;
+}
+
+header img {
+    height: 50px;
+}
+.header-inner {
+    display: flex;
+    justify-content: center; /* Выравнивание по горизонтали */
+    align-items: center;    /* Выравнивание по вертикали */
+    width: 100%;           /* Важно: Занимаем всю ширину header */
+    height: 100%;
+    padding: 0 20px;
+}
+
+.logo {
+    display: inline-block;
+    margin-right: 50px;
+    width: 150px
+}
+.logo img {
+    height: auto; 
+    max-width: 100%
+}
+nav {
+    display: inline-block;
+    float: right;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #c68dfe;
+    padding: 10px 15px;
+    transition: color 0.3s ease;
+    border-radius: 5px;
+}
+
+nav a:hover {
+    color: #ccea58;
+}
+
+.hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+    text-align: center;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    z-index: -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0) 5%),
+                linear-gradient(to bottom, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0) 5%),
+                linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 5%),
+                linear-gradient(to right, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 5%);
+    background-blend-mode: multiply;
+}
+
+.hero-content {
+    z-index: 1;
+    
+}
+
+h1 {
+    font-family: 'Montserrat';
+    font-size: 5em;
+    color: #ccea58;
+    margin-bottom: 80px;
+
+}
+
+.hero button {
+    background-color: #c68dfe; /* Фиолетовый цвет */
+    color: white; /* Белый цвет текста */
+    padding: 15px 30px;
+    border: none;
+    border-radius: 90px; /* Скругление */
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2em; /* Размер шрифта */
+    transition: background-color 0.3s ease; /* плавное изменение цвета */
+}
+
+.hero button:hover {
+    background-color: #ccea58; /* Зелёный при наведении */
+}
+
+#about, #team, #upload {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.about-grid {
+    display: flex;
+    justify-content: space-around; /* Расстояние между колонками */
+    flex-wrap: wrap; /* Обтекание на меньших экранах */
+}
+
+.about-column {
+    max-width: 250px; /* Максимальная ширина */
+    width: 30%; /* Процентная ширина */
+    margin-bottom: 20px;
+    text-align: center;
+
+}
+
+.about-column img {
+    width: 50px; /* Размер иконки */
+    height: 50px;
+    margin-bottom: 40px; /* Отступ снизу иконки */
+}
+#about h2, #advantages h2, #team h2 {
+    font-size: 2em;          /* Размер шрифта: 2 em (относительно размера шрифта родительского элемента) */
+    margin-bottom: 100px;      /* Нижний отступ: 2 em */
+    margin-top: 130px;         /* Верхний отступ: 2 em */
+    color: #c68dfe;          /* Цвет текста: фиолетовый (#c68dfe) */
+    text-align: center;      /* Выравнивание текста по центру */
+}
+
+.recognize-button-container {
+text-align: center; /* Центрирование кнопки */
+margin-top: 20px; /* Отступ сверху */
+margin-bottom: 20px; /* Отступ снизу */
+}
+
+.recognize-button-container a {
+display: inline-block; /* Для правильного применения padding */
+padding: 10px 20px; /* Отступы внутри кнопки */
+background-color: #c68dfe; /* Зеленый цвет фона */
+color: white; /* Белый цвет текста */
+text-decoration: none; /* Убираем подчеркивание */
+border-radius: 90px; /* Скругленные углы */
+transition: background-color 0.3s ease; /* Плавное изменение цвета при наведении */
+}
+
+.recognize-button-container a:hover {
+background-color: #ccea58; /* Темнее при наведении */
+}
+
+.section-title {
+    font-size: 2em;
+    margin-bottom: 2em; /* Existing margin-bottom */
+    margin-top: 2em;   /* Add margin-top */
+    color: #c68dfe;
+    text-align: center;
+}
+
+#team {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.team-members {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; 
+}
+
+.team-member {
+    position: relative;
+    margin: 20px;
+    width: 200px; 
+    overflow: hidden; 
+}
+
+.team-member img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+
+.team-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(198, 141, 254, 0.8); 
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+}
+
+.team-member:hover .team-info {
+    opacity: 1;
+}
+
+.team-role {
+    font-size: 0.9em;
+    text-transform: uppercase;
+    margin-bottom: 0.5em;
+}
+
+.team-member h3 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.team-description {
+    font-size: 0.8em;
+}
+
+#contact {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.contact-info {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; 
+}
+
+.contact-item {
+    margin: 10px;
+    display: flex;
+    align-items: center; 
+}
+
+.contact-item {
+margin: 10px;
+display: flex;
+align-items: center;
+}
+
+.contact-item img {
+width: 30px; 
+height: auto;
+margin-right: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #333; 
+    color: #fff;
+}
+
+footer p{
+margin: 0;
+}
+
+.copyable-text {
+cursor: pointer; /* Указывает, что текст кликабельный */
+text-decoration: none; /* Удаляем стандартное подчёркивание */
+transition: text-decoration 0.3s ease; /* Плавный переход для подчёркивания */
+}
+
+.copyable-text:hover {
+    text-decoration: underline; /* Подчёркивание при наведении */
+}

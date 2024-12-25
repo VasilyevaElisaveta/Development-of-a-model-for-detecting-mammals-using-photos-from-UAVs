@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Изменение разметки
+{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block header %}
+<a href="{% url 'homepage:index' %}">
+  <div id="logo">
+    <img src="{% static 'images/logo1.png' %}" alt="Логотип" >
+  </div>
+</a>
+<nav>
+  <ul>
+    <li><a href="{% url 'homepage:index' %}">Главная</a></li>
+    <li><a href="{% url 'detection:detect_mammals' %}">Детекция</a></li>
+    <li><a href="{% url 'detection:edit_detection' %}">Редактировать детекцию</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+{% if error %}
+  <h1>Ошибка: {{ error }}</h1>
+{% else %}
+  <h1>Загрузите архив с изображениями и аннотациями</h1>
+{% endif %}
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" id="file-input" name="file" class="hidden">
+    <label for="file-input" class="upload-button">Выбрать файл</label>
+    <button type="submit" class="process-button">Отправить</button>
+  </form>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

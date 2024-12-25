@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Обработка файла
+{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block header %}
+<a href="{% url 'homepage:index' %}">
+  <div id="logo">
+    <img src="{% static 'images/logo1.png' %}" alt="Логотип" >
+  </div>
+</a>
+<nav>
+  <ul>
+    <li><a href="{% url 'homepage:index' %}">Главная</a></li>
+    <li><a href="{% url 'detection:detect_mammals' %}">Детекция</a></li>
+    <li><a href="{% url 'detection:edit_detection' %}">Редактировать детекцию</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="image-container">
+  <div class="upload-button-container">
+    <img src="{% static 'images/олени.jpg' %}" alt="Загрузить">
+    <div id="button-container">
+      {% if form %}
+        <h1>Загрузите файл для обработки</h1>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="file" id="file-input" name="file" class="hidden">
+          <label for="file-input" class="upload-button">Выбрать файл</label>
+          <button type="submit" class="process-button">Отправить</button>
+        </form>
+      {% else %}
+        {% if status %}
+          <h1>Ваш файл обработан</h1>
+          <a href="{{ download_url }}" download>
+            <button type="button" class="save-button">Скачать результат</button>
+          </a>
+          <a href="{% url 'detection:detect_mammals' %}">
+            <button type="button" class="new-file-button">Обработать новый файл</button>
+          </a>
+        {% else %}
+          <h1>Произошла ошибка</h1>
+          <p>Ошибка: {{ error }}</p>
+          <a href="{% url 'detection:detect_mammals' %}">
+            <button type="button" class="new-file-button">Обработать новый файл</button>
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
