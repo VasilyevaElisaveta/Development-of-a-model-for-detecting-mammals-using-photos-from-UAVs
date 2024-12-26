@@ -88,7 +88,7 @@ class FileManager:
             return image_id
 
         def update_categories_data(annotation_data: dict, current_class: int, class_definition: dict[int, str]) -> int:
-            class_name: str = class_definition[str(current_class)]
+            class_name: str = class_definition[current_class]
             if class_name in annotation_data["info"]["categories"]:
                 class_id: int =  annotation_data["info"]["categories"][class_name]
             else:
@@ -326,7 +326,6 @@ class FileManager:
 
     @staticmethod
     def process_images(image_data: dict, class_data: dict, save_folder: str):
-        # annotation_data: dict, image_path: str,  image_shape: tuple[int, int], coordinates: list[list[float]], classes: list[int], class_definition: dict[int, str]
         annotation_data: dict = FileManager.create_annotation_data()
 
         for image_obj in image_data.values():
@@ -343,6 +342,9 @@ class FileManager:
             for data in bbox_data:
                 bbox.append(data[0])
                 classes.append(data[1])
+            
+            for key in list(class_data.keys()):
+                class_data[int(key)] = class_data.pop(key)
 
             FileManager.annotate_image(image, full_image_path, image_save_path, bbox)
             FileManager.save_annotation_data(annotation_data, full_image_path, (height, width), bbox, classes, class_data)

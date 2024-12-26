@@ -20,10 +20,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from config import DJANGO_PATH_FOR_ADMIN, DJANGO_PATH_FOR_HOMEPAGE, DJANGO_PATH_FOR_DETECTION
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('detection/', include('detection.urls')),
-    path('', include('homepage.urls'))
+    path(f'{DJANGO_PATH_FOR_ADMIN}/', admin.site.urls),
+    path(f'{DJANGO_PATH_FOR_DETECTION}/', include('detection.urls')),
+    path(f'{DJANGO_PATH_FOR_HOMEPAGE}', include('homepage.urls'))
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

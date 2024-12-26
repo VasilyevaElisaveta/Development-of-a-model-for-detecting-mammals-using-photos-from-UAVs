@@ -38,8 +38,8 @@
 
 {% block script %}
 <script>
-  const baseURL = 'http://127.0.0.1:8001/';
-  const apiURL = 'http://127.0.0.1:8000/complete/';
+  const baseURL = '{{ django_url }}';
+  const apiURL = '{{ api_url }}';
   const imageData = {{ image_data|safe }};
   const classData = {{ class_data|safe }};
   const totalImages = {{ amount }};

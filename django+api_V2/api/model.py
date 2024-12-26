@@ -7,8 +7,8 @@ from api.file_management import FileManager
 
 class Model:
 
-    def __init__(self) -> None:
-        self.__model = YOLO('api/models/mammals.pt')
+    def __init__(self, model_path: str) -> None:
+        self.__model = YOLO(model_path)
 
     def predict_image(self, image_path: str, save_folder: str, data_file: str, annotation_data: dict):
 

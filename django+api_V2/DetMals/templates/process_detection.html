@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Обработка файла
+{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block header %}
+<a href="{% url 'homepage:index' %}">
+  <div id="logo">
+    <img src="{% static 'images/logo1.png' %}" alt="Логотип" >
+  </div>
+</a>
+<nav>
+  <ul>
+    <li><a href="{% url 'homepage:index' %}">Главная</a></li>
+    <li><a href="{% url 'detection:detect_mammals' %}">Детекция</a></li>
+    <li><a href="{% url 'detection:edit_detection' %}">Редактировать детекцию</a></li>
+  </ul>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="image-container">
+  <div class="upload-button-container">
+    <img src="{% static 'images/олени.jpg' %}" alt="Загрузить">
+    <div id="button-container">
+      {% if is_form %}
+        <h1>Загрузите файл для обработки</h1>
+        <form id="file-upload-form">
+          {% csrf_token %}
+          <div>
+            <label for="class-type">Выберите вид животного:</label>
+            <select id="class-type" name="class-type">
+            </select>
+          </div>
+          <div>
+            <label for="file-input">Выберите файл:</label>
+            <input type="file" id="file-input" name="file" />
+          </div>
+          <div>
+            <button id="submit-button">Отправить</button>
+          </div>
+        </form>
+      {% else %}
+        {% if status %}
+          <h1>Ваш файл обработан</h1>
+          <a href="{{ download_url }}" download>
+            <button type="button" class="save-button">Скачать результат</button>
+          </a>
+        {% else %}
+          <h1>Произошла ошибка</h1>
+          <p>Ошибка: {{ error }}</p>
+        {% endif %}
+        <a href="{% url 'detection:detect_mammals' %}">
+          <button type="button" class="new-file-button">Обработать новый файл</button>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% if is_form %}
+<script>
+  const classData = {{ class_data|safe }};
+  const djangoDetectionURL = '{{ detection_url }}'
+</script>
+<script src="{% static 'js/detection_script.js' %}">
+</script>
+{% else %}
+{% endif %}
+{% endblock %}
