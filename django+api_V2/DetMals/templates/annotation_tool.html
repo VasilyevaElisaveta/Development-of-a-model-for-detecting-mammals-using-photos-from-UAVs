@@ -23,9 +23,33 @@
 {% endblock %}
 
 {% block content %}
+<style> 
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+<div id="bbox-info" style="position: fixed; right: 20px; top: 50%; transform: translateY(-50%); padding: 10px; border: 1px solid #ccc; background-color: #fff; display: none;">
+  <h3>Annotation data</h3>
+  <p id="bbox-class"></p>
+  <button id="delete-bbox">Удалить</button>
+  <button id="change-class">Изменить класс</button>
+</div>
 <div id="annotation-tool">
-  <div id="image-container">
-    <canvas id="annotation-canvas"></canvas>
+  {% csrf_token %}
+  <div id="canvas-container" style="position: relative; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <canvas id="image-layer" style="position: absolute; z-index: 1;"></canvas>
+    <canvas id="bbox-layer" style="position: absolute; z-index: 2;"></canvas>
+    <canvas id="crosshair-layer" style="position: absolute; z-index: 3;"></canvas>
+    <canvas id="interactive-layer" style="position: absolute; z-index: 4;"></canvas>
   </div>
   <div id="info-panel">
     <p id="image-number">Изображение <span id="current-image"></span>/<span id="total-images"></span></p>
@@ -43,216 +67,6 @@
   const imageData = {{ image_data|safe }};
   const classData = {{ class_data|safe }};
   const totalImages = {{ amount }};
-  const canvas = document.getElementById('annotation-canvas');
-  const canvasContext = canvas.getContext('2d');
-
-  let currentImageIndex = 0;
-  let currentImage = null;
-  let currentBboxes = null;
-  let isDrawing = false;
-
-  const drawImage = (callback) => {
-    let currentImageData = imageData[String(currentImageIndex)];
-    let imagePath = baseURL + currentImageData["image_path"];
-    image = new Image();
-    image.src = imagePath;
-    currentImage = image;
-
-    image.onload = () => {
-      canvas.width = image.width;
-      canvas.height = image.height;
-      canvasContext.drawImage(image, 0, 0);
-
-      if (callback) callback();
-    };
-  };
-
-  const drawBoundingBox = () => {
-    let currentImageData = imageData[String(currentImageIndex)];
-    let boundingBoxData = currentImageData["bbox"];
-    for (let bbox of boundingBoxData) {
-      const [x, y, width, height] = bbox[0];
-      canvasContext.strokeStyle = 'red';
-      canvasContext.lineWidth = 2;
-      canvasContext.strokeRect(x, y, width, height);
-    }
-  };
-
-  const checkButtons = () => {
-    let nextButton = document.getElementById('next-button');
-    nextButton.style.display = (currentImageIndex === totalImages) ? 'none' : 'block';
-
-    let previousButton = document.getElementById('previous-button');
-    previousButton.style.display = (currentImageIndex <= 1) ? 'none' : 'block';
-  };
-
-  const goToNextImage = () => {
-    if (currentImageIndex >= totalImages) return;
-      
-    currentImageIndex += 1;
-    drawImage(() => {
-      drawBoundingBox();
-    });
-    checkButtons();
-
-    document.getElementById('current-image').textContent = currentImageIndex;
-    document.getElementById('total-images').textContent = totalImages;
-  };
-
-  const goToPreviousImage = () => {
-    if (currentImageIndex <= 1) return;
-
-    currentImageIndex -= 1;
-    drawImage(() => {
-      drawBoundingBox();
-    });
-    checkButtons();
-
-    document.getElementById('current-image').textContent = currentImageIndex;
-    document.getElementById('total-images').textContent = totalImages;
-  };
-
-  const completeAnnotation = () => {
-    let formData = new FormData();
-    formData.append("image_data", JSON.stringify(imageData));
-    formData.append("class_data", JSON.stringify(classData));
-
-    fetch(apiURL, {
-      method: 'POST',
-      body: formData
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        createSuccessPage(data);
-      })
-      .catch((error) => {
-        createFailurePage();
-      });
-  };
-
-  const createSuccessPage = (data) => {
-    let annotationTool = document.getElementById('annotation-tool');
-    annotationTool.innerHTML = '';
-
-    let actionContainer = document.createElement('div');
-    actionContainer.style.textAlign = 'center';
-    actionContainer.style.marginTop = '20px';
-
-    const downloadButton = document.createElement('button');
-    downloadButton.innerText = 'Скачать архив';
-    downloadButton.classList.add('btn', 'btn-primary');
-    downloadButton.style.marginRight = '10px';
-
-    downloadButton.addEventListener('click', () => {
-        const link = document.createElement('a');
-        link.href = baseURL + data.file_path;
-        link.download = 'archive.zip';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-
-    let editButton = document.createElement('button');
-    editButton.innerText = 'Редактировать другую разметку';
-    editButton.classList.add('btn', 'btn-secondary');
-    editButton.onclick = () => {window.location.href = window.location.href;}; 
-
-    actionContainer.appendChild(downloadButton);
-    actionContainer.appendChild(editButton);
-
-    annotationTool.appendChild(actionContainer);
-  };
-  
-  const createFailurePage = () => {
-    let annotationTool = document.getElementById('annotation-tool');
-    annotationTool.innerHTML = '';
-
-    let actionContainer = document.createElement('div');
-    actionContainer.style.textAlign = 'center';
-    actionContainer.style.marginTop = '20px';
-
-    let paragraph = document.createElement('p')
-    let text = document.createTextNode('An error occurred while saving annotations')
-    paragraph.appendChild(text)
-
-    let editButton = document.createElement('button');
-    editButton.innerText = 'Редактировать другую разметку';
-    editButton.classList.add('btn', 'btn-secondary');
-    editButton.onclick = () => {window.location.href = window.location.href;};
-    
-    actionContainer.appendChild(paragraph)
-    actionContainer.appendChild(editButton);
-
-    annotationTool.appendChild(actionContainer);
-  }
-
-  // Сохранить текущие аннотации
-  const saveAnnotations = () => {
-  const imageInfo = images[currentImageIndex];
-  const imageId = imageInfo.id;
-
-  // Собираем bounding boxes (в данной версии они сохраняются локально)
-  if (!annotations[imageId]) annotations[imageId] = [];
-
-  // Добавляем текущий bounding box
-  if (currentBBox) {
-    annotations[imageId].push(currentBBox);
-    currentBBox = null; // Сбрасываем
-  }
-
-  alert('Успешно сохранено');
-  };
-
-  // Рисование bounding boxes
-  canvas.addEventListener('mousedown', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    startX = e.clientX - rect.left;
-    startY = e.clientY - rect.top;
-    isDrawing = true;
-  });
-
-  canvas.addEventListener('mousemove', (e) => {
-    if (!isDrawing) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    // Перерисовываем изображение
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-
-    // Перерисовываем все существующие bounding boxes
-    const imageAnnotations = annotations[images[currentImageIndex].id] || [];
-    imageAnnotations.forEach((bbox) => drawBoundingBox(bbox));
-
-    // Рисуем текущий bounding box
-    ctx.strokeStyle = 'blue';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(startX, startY, x - startX, y - startY);
-
-    currentBBox = [startX, startY, x - startX, y - startY];
-  });
-
-  canvas.addEventListener('mouseup', () => {
-    if (isDrawing && currentBBox) {
-      const imageInfo = images[currentImageIndex];
-      const imageId = imageInfo.id;
-
-      if (!annotations[imageId]) annotations[imageId] = [];
-      annotations[imageId].push(currentBBox);
-
-      // Завершаем рисование
-      isDrawing = false;
-      currentBBox = null;
-    }
-  });
-
-
-  goToNextImage();
-
-  document.getElementById('previous-button').addEventListener('click', goToPreviousImage);
-  document.getElementById('next-button').addEventListener('click', goToNextImage);
-  document.getElementById('complete-button').addEventListener('click', completeAnnotation);
 </script>
+<script src="{% static 'js/annotation_tool_script.js' %}"></script>
 {% endblock %}

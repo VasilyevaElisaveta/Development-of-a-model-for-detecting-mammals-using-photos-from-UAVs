@@ -21,12 +21,14 @@ def detect_mammals(request):
             status = response.json()['status']
             if status:
                 file_system = FileSystemStorage()
-                processed_file_path = response.json()["processed_file"]
-                download_url = file_system.url(processed_file_path)
+                processed_file_path: str = response.json()["processed_file"]
+                download_url: str = file_system.url(processed_file_path)
                 return render(request, "process_detection.html", {"is_form": False, "status": True, "download_url": download_url})
             else:
-                error = response.json()['error']
-                return render(request, "process_detection.html", {"is_form": False, "status": False, "error": error})
+                response = response.json()
+                is_list: bool = response['is_list']
+                error: str | list[str] = response['error']
+                return render(request, "process_detection.html", {"is_form": False, "status": False, "is_list": is_list, "error": error})
         else:
             return render(request, "process_detection.html", {"is_form": False, "status": False, "error": response.text})
     else:

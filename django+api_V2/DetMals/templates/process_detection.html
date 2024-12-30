@@ -27,7 +27,7 @@
 {% block content %}
 <div class="image-container">
   <div class="upload-button-container">
-    <img src="{% static 'images/олени.jpg' %}" alt="Загрузить">
+    <img src="{% static 'images/deers.jpg' %}" alt="Загрузить">
     <div id="button-container">
       {% if is_form %}
         <h1>Загрузите файл для обработки</h1>
@@ -53,8 +53,18 @@
             <button type="button" class="save-button">Скачать результат</button>
           </a>
         {% else %}
-          <h1>Произошла ошибка</h1>
-          <p>Ошибка: {{ error }}</p>
+          {% if is_list %}
+            <h1>Произошла ошибка</h1>
+            {% for string in error %}
+              {% if forloop.first %}
+                <h2>{{ string }}</h2>
+              {% else %}
+                <h2>{{ string }}</h2>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <p>Ошибка: {{ error }}</p>
+          {% endif %}
         {% endif %}
         <a href="{% url 'detection:detect_mammals' %}">
           <button type="button" class="new-file-button">Обработать новый файл</button>

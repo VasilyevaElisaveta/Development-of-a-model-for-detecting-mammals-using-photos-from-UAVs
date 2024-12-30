@@ -15,13 +15,14 @@ class FileManager:
     __BASE_FOLDER: str = BASE_DIR
 
     @staticmethod
-    def get_supported_file_extensions_message() -> str:
-        supported_image_extensions: str = f'Image extensions: {', '.join(FileManager.__IMAGE_EXTENSIONS)}'
-        supported_video_extensions: str = f'Video extensions: {', '.join(FileManager.__VIDEO_EXTENSIONS)}'
-        supported_archive_extensions: str = f'Archive extensions: {', '.join(FileManager.__ARCHIVE_EXTENSIONS)}'
-        #result_string: str = f'Files are supported only with the following extensions. \n{supported_image_extensions}. \n{supported_video_extensions}. \n{supported_archive_extensions}.'
-        result_string: str = f'Files extensions is unsupport.'
-        return result_string
+    def get_supported_file_extensions_message(is_archive: bool = False) -> str | list[str]:
+        if is_archive:
+            return f'Files are supported only with the following extensions: {', '.join(FileManager.__ARCHIVE_EXTENSIONS)}.'
+        main_string: str = 'Files are supported only with the following extensions.'
+        supported_image_extensions: str = f'Image extensions: {', '.join(FileManager.__IMAGE_EXTENSIONS)}.'
+        supported_video_extensions: str = f'Video extensions: {', '.join(FileManager.__VIDEO_EXTENSIONS)}.'
+        supported_archive_extensions: str = f'Archive extensions: {', '.join(FileManager.__ARCHIVE_EXTENSIONS)}.'
+        return [main_string, supported_image_extensions, supported_video_extensions, supported_archive_extensions]
     
     @staticmethod
     def check_file_extension(file_path: str, is_archive: bool = False) -> bool:
@@ -168,8 +169,7 @@ class FileManager:
     
     @staticmethod
     def create_data_file(save_folder: str) -> str:
-        file_path: str = f'{save_folder}/data.txt'
-        # file_path: str = path.join(save_folder, 'data.txt')
+        file_path: str = path.join(save_folder, 'data.txt')
         with open(file_path, 'w') as data_file:
             pass
         return file_path
@@ -179,7 +179,7 @@ class FileManager:
         file_name: str = FileManager.get_file_name(file_path)
         archive_path: str = f'{FileManager.__RESULT_FOLDER}/{file_name}/{file_name}.zip'
         with ZipFile(archive_path, 'w', ZIP_DEFLATED) as zip_archive:
-            for root, dirs, files in walk(general_folder):
+            for root, _, files in walk(general_folder):
                 for file in files:
                     full_path = path.join(root, file)
                     arcname = path.relpath(full_path, general_folder)
@@ -206,13 +206,11 @@ class FileManager:
             data_file.write(f'{image_name}\n')
             if is_video:
                 for class_id, objects in amount.items():
-                    # class_name = classes[int(class_id)]
-                    class_name = 'deer'
+                    class_name = classes[int(class_id)]
                     data_file.write(f'{class_name}: {len(objects)}\n')
             else:
                 for class_id, count in amount.items():
-                    # class_name = classes[int(class_id)]
-                    class_name = 'deer'
+                    class_name = classes[int(class_id)]
                     data_file.write(f'{class_name}: {count}\n')
 
     @staticmethod
@@ -233,7 +231,7 @@ class FileManager:
             zip_archive.extractall(archive_extraction_folder)
 
         extracted_files: list[tuple[str, str]] = []
-        for root, dirs, files in walk(archive_extraction_folder):
+        for root, _, files in walk(archive_extraction_folder):
             for file_name in files:
                 source_file_path: str = path.join(root, file_name)
                 relative_path = path.relpath(root, archive_extraction_folder)
@@ -300,7 +298,6 @@ class FileManager:
         full_file_path: str = path.abspath(file_path)
         folders: list[str] = full_file_path.split('\\')
         media_folder_idx: int = folders.index('media')
-        # general_save_path: str = path.join(*folders[0:media_folder_idx+3], 'files')
         general_save_path: str = f'{"\\".join(folders[0:media_folder_idx+3])}\\files'
         if only_general_path:
             return general_save_path

@@ -14,7 +14,6 @@ class Model:
 
         results = self.__model(image_path, verbose=False)
 
-        # image: ndarray = results[0].plot()
         image: ndarray = results[0].plot(labels=False, probs=False)
         image_shape: tuple[int, int] = results[0].orig_shape
         coordinates: list[list[float]] = results[0].boxes.xyxy.tolist()
@@ -47,7 +46,6 @@ class Model:
                 break
 
             results = self.__model.track(frame, persist=True, verbose=False)
-            # annoteted_frame = results[0].plot()
             annoteted_frame = results[0].plot(labels=False, probs=False)
             output_video.write(annoteted_frame)
 
