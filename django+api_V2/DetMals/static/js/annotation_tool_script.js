@@ -289,7 +289,6 @@ function checkForNumber(array) {
 function processInput(input) {
   colonIndex = input.indexOf(':')
   if (colonIndex == -1) {
-    let numbers = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     number = input.trim()
     if (!checkForNumber(number)) return [false, 'Id не является числом. Попробуйте снова!'];
     if (input in classData) {

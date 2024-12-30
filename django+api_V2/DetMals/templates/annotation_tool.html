@@ -37,12 +37,6 @@
     align-items: center;
   }
 </style>
-<div id="bbox-info" style="position: fixed; right: 20px; top: 50%; transform: translateY(-50%); padding: 10px; border: 1px solid #ccc; background-color: #fff; display: none;">
-  <h3>Annotation data</h3>
-  <p id="bbox-class"></p>
-  <button id="delete-bbox">Удалить</button>
-  <button id="change-class">Изменить класс</button>
-</div>
 <div id="annotation-tool">
   {% csrf_token %}
   <div id="canvas-container" style="position: relative; display: flex; justify-content: center; align-items: center; height: 100vh;">
@@ -56,6 +50,12 @@
     <button id="previous-button" style="display: none;">Перейти к предыдущему</button>
     <button id="next-button" style="display: block;">Перейти к следующему</button>
     <button id="complete-button">Завершить</button>
+  </div>
+  <div id="bbox-info" style="position: fixed; right: 20px; top: 50%; transform: translateY(-50%); padding: 10px; border: 1px solid #ccc; background-color: #fff; display: none;">
+    <h3>Annotation data</h3>
+    <p id="bbox-class"></p>
+    <button id="delete-bbox">Удалить</button>
+    <button id="change-class">Изменить класс</button>
   </div>
 </div>
 {% endblock %}
