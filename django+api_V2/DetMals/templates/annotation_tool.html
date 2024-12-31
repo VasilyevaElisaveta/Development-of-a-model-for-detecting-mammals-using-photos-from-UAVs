@@ -62,11 +62,15 @@
 
 {% block script %}
 <script>
-  const baseURL = '{{ django_url }}';
-  const apiURL = '{{ api_url }}';
-  const imageData = {{ image_data|safe }};
-  const classData = {{ class_data|safe }};
-  const totalImages = {{ amount }};
+  let NewDjangoData = {
+
+    baseURL: '{{ django_url }}',
+    apiURL: '{{ api_url }}',
+    imageData: {{ image_data|safe }},
+    classData: {{ class_data|safe }},
+    totalImages: {{ amount }},
+  };
+
 </script>
 <script src="{% static 'js/annotation_tool_script.js' %}"></script>
 {% endblock %}

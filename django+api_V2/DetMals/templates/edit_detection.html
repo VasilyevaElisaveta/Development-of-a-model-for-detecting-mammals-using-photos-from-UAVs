@@ -47,7 +47,14 @@
 
 {% block script %}
 <script>
-  const detectionEditingURL = '{{ detection_editing_url }}'
+
+  class DjangoData {
+    static #detectionEditingURL = '{{ detection_editing_url }}';
+
+    static get detectionEditingURL() {
+      return this.#detectionEditingURL;
+    };
+  };
 </script>
 <script src="{% static 'js/edit_detection_script.js' %}"></script>
 {% endblock %}

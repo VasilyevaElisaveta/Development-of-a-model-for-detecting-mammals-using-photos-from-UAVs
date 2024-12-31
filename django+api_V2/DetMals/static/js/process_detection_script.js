@@ -1,11 +1,8 @@
 class EnvironmentProcessing {
 
   static init() {
+    EnvironmentProcessing.#initializeSelectionForm();
     EnvironmentProcessing.#attachEventListeners();
-  };
-
-  static #attachEventListeners() {
-    document.getElementById('submit-button').addEventListener('click', EnvironmentProcessing.#submitForm);
   };
 
   static #submitForm(event) {
@@ -18,11 +15,15 @@ class EnvironmentProcessing {
       return;
     }
   
+    let selectedElement = document.getElementById("class-type");
+    let classType = selectedElement.value;
+  
     let formData = new FormData();
     formData.append('file', file);
+    formData.append('class', classType);
   
     let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    let url = DjangoData.detectionEditingURL;
+    let url = DjangoData.djangoDetectionURL;
   
     EnvironmentProcessing.#createLoading();
     fetch(url, {
@@ -50,16 +51,34 @@ class EnvironmentProcessing {
         window.location.reload();
       });
   };
-  
-  static #createLoading() {
-    let container = document.getElementById('form-container');
-    container.innerHTML = '';
 
+  static #initializeSelectionForm() {
+    let selectionElement = document.getElementById('class-type');
+    let classData = DjangoData.classData
+  
+    classData.forEach(element => {
+      let option = document.createElement('option');
+      option.value = element["value"];
+      option.textContent = element["text"];
+      option.selected = element["is_selected"];
+  
+      selectionElement.appendChild(option);
+    });
+  };
+
+  static #createLoading() {
+    let container = document.getElementById('button-container');
+    container.innerHTML = '';
+  
     let paragraph = document.createElement('p');
     let text = document.createTextNode('Идет обработка. Пожалуйста, подождите');
     paragraph.appendChild(text);
-
+  
     container.appendChild(paragraph);
+  };
+
+  static #attachEventListeners() {
+    document.getElementById('submit-button').addEventListener('click', EnvironmentProcessing.#submitForm);
   };
 };
 

@@ -78,11 +78,22 @@
 {% block script %}
 {% if is_form %}
 <script>
-  const classData = {{ class_data|safe }};
-  const djangoDetectionURL = '{{ detection_url }}'
+
+  class DjangoData {
+
+    static #classData = {{ class_data|safe }};
+    static #djangoDetectionURL = '{{ detection_url }}';
+
+    static get classData() {
+      return this.#classData;
+    };
+
+    static get djangoDetectionURL() {
+      return this.#djangoDetectionURL;
+    };
+  };
 </script>
-<script src="{% static 'js/detection_script.js' %}">
-</script>
+<script src="{% static 'js/process_detection_script.js' %}"></script>
 {% else %}
 {% endif %}
 {% endblock %}
