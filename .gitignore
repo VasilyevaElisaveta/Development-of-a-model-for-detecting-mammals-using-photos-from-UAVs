@@ -5,6 +5,8 @@ django+api/media/results
 django+api/media/uploaded
 django+api_V2/media/results
 django+api_V2/media/uploaded
+django+api_V2/DetMals/db.sqlite3
+
 
 .gradio/
 .mypy_cache/
