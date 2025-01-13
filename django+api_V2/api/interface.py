@@ -14,7 +14,7 @@ class DetectionInterface:
     
     @staticmethod    
     def __process_image(model: Model, input_image_path: str, save_folder: str, data_file: str, annotation_data: dict, is_archive_file: bool) -> str | None:
-        model.predict_image(input_image_path, save_folder, data_file, annotation_data)
+        model.predict_image(input_image_path, save_folder, data_file, annotation_data, is_archive_file)
         if not is_archive_file:
             FileManager.write_annotation_to_json(annotation_data, save_folder)
             archive_path: str = FileManager.create_archive(save_folder, input_image_path)
@@ -23,7 +23,7 @@ class DetectionInterface:
 
     @staticmethod
     def __process_video(model: Model, input_video_path: str, save_folder: str, data_file: str, is_archive_file: bool) -> str | None:
-        model.track_video(input_video_path, save_folder, data_file)
+        model.track_video(input_video_path, save_folder, data_file, is_archive_file)
         if not is_archive_file:
             archive_path: str = FileManager.create_archive(save_folder, input_video_path)
             return archive_path
@@ -68,10 +68,13 @@ class DetectionInterface:
         return result
     
     @staticmethod
-    def __prepare_files(archive_path: str) -> tuple:
-        save_folder: str = FileManager.make_dir(archive_path)
-        files_and_folders: list[tuple[str, str]] = FileManager.unpack_archive(archive_path, save_folder)
-        files_pathes: list[str] = [x[1] for x in files_and_folders]
+    def __prepare_files(file_path: str) -> tuple:
+        save_folder: str = FileManager.make_dir(file_path)
+        if FileManager.check_file_extension(file_path, is_archive=True):
+            files_and_folders: list[tuple[str, str]] = FileManager.unpack_archive(file_path, save_folder)
+            files_pathes: list[str] = [x[1] for x in files_and_folders]
+        else:
+            files_pathes: list[str] = FileManager.prepare_image(file_path)
         preparation_result: tuple = FileManager.prepare_files(files_pathes)
 
         return preparation_result

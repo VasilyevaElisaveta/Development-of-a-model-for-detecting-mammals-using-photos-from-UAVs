@@ -4,13 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.interface import DetectionInterface
 from api.file_management import FileManager
 from pathlib import Path
-from sys import path as sys_path
-from os import path as os_path
-from config import MEDIA_DIR_UPLOADED_FILES
+from sys import path
 from config import DJANGO_BASE_URL, API_PATH_FOR_DETECTION, API_PATH_FOR_FILE_PREPARETION, API_PATH_FOR_PROCESS_COMPLETION
 
 
-sys_path.append(str(Path(__file__).resolve().parent.parent))
+path.append(str(Path(__file__).resolve().parent.parent))
 
 app = FastAPI()
 
@@ -24,27 +22,25 @@ app.add_middleware(
 
 @app.post(f'/{API_PATH_FOR_DETECTION}/')
 async def process(file: UploadFile = File(...), class_name: str = Form(...)) -> JSONResponse:
-    file_path: str = os_path.join(MEDIA_DIR_UPLOADED_FILES, file.filename)
 
-    if not FileManager.check_file_extension(file_path):
+    if not FileManager.check_file_extension(file.filename):
         return JSONResponse(content={"status": False, "is_list": True, "error": FileManager.get_supported_file_extensions_message()})
         
-    FileManager.save_file(file.file, file_path)
+    file_path: str = FileManager.save_file(file.file, file.filename)
     output_file: str = DetectionInterface.run_detection(file_path, class_name)
     return JSONResponse(content={"status" : True, "processed_file": output_file})
 
 @app.post(f'/{API_PATH_FOR_FILE_PREPARETION}/')
 async def prepare(file: UploadFile = File(...)) -> JSONResponse:
-    file_path: str = os_path.join(MEDIA_DIR_UPLOADED_FILES, file.filename)
 
-    if not FileManager.check_file_extension(file_path, is_editing=True):
-        return JSONResponse(content={"status": False, "is_list": False, "text": FileManager.get_supported_file_extensions_message(is_archive=True)})
+    if not FileManager.check_file_extension(file.filename, is_editing=True):
+        return JSONResponse(content={"status": False, "is_list": True, "text": FileManager.get_supported_file_extensions_message(is_editing=True)})
     
-    FileManager.save_file(file.file, file_path)
+    file_path: str = FileManager.save_file(file.file, file.filename)
     preparation_result: tuple = DetectionInterface.run_editing_preparation(file_path)
     preparation_status: bool = preparation_result[0]
     if not preparation_status:
-        return JSONResponse(content={"status": False, "text": preparation_result[1]})
+        return JSONResponse(content={"status": False, "is_list": False, "text": preparation_result[1]})
     
     image_data, class_data, amount = preparation_result[1:]
     return JSONResponse(content={"status": True, "image_data": image_data, "class_data": class_data, "amount": amount})

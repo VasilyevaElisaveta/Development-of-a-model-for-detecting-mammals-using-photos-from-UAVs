@@ -1,10 +1,11 @@
 from os import makedirs, walk, path
 from zipfile import ZipFile, ZIP_DEFLATED
+from uuid import uuid4
 from numpy import ndarray
 from cv2 import imwrite, imread, rectangle, IMWRITE_JPEG_QUALITY
 from json import dump, dumps, load, loads
-from shutil import copyfileobj
-from config import BASE_DIR, MEDIA_DIR, MEDIA_DIR_UPLOADED_FILES, MEDIA_DIR_RESULT_FILES
+from shutil import copyfile, copyfileobj
+from config import BASE_DIR, MEDIA_DIR, MEDIA_DIR_UPLOADED_FILES, MEDIA_DIR_RESULT_FILES, RESULT_FILES_FOLDER_NAME, SOURCE_FILES_FOLDER_NAME
 
 
 class FileManager:
@@ -15,22 +16,26 @@ class FileManager:
     __UPLOADED_FOLDER = MEDIA_DIR_UPLOADED_FILES
     __RESULT_FOLDER: str = MEDIA_DIR_RESULT_FILES
     __BASE_FOLDER: str = BASE_DIR
+    __RESULT_FILES_FOLDER_NAME: str = RESULT_FILES_FOLDER_NAME
+    __SOURCE_FILES_FOLDER_NAME: str = SOURCE_FILES_FOLDER_NAME
 
     @staticmethod
-    def get_supported_file_extensions_message(is_archive: bool = False) -> str | list[str]:
-        if is_archive:
-            return f'Files are supported only with the following extensions: {', '.join(FileManager.__ARCHIVE_EXTENSIONS)}.'
+    def get_supported_file_extensions_message(is_editing: bool = False) -> list[str]:
         main_string: str = 'Files are supported only with the following extensions.'
         supported_image_extensions: str = f'Image extensions: {', '.join(FileManager.__IMAGE_EXTENSIONS)}.'
         supported_video_extensions: str = f'Video extensions: {', '.join(FileManager.__VIDEO_EXTENSIONS)}.'
         supported_archive_extensions: str = f'Archive extensions: {', '.join(FileManager.__ARCHIVE_EXTENSIONS)}.'
+        if is_editing:
+            return [main_string, supported_image_extensions, supported_archive_extensions]
         return [main_string, supported_image_extensions, supported_video_extensions, supported_archive_extensions]
     
     @staticmethod
-    def check_file_extension(file_path: str, is_editing: bool = False) -> bool:
+    def check_file_extension(file_path: str, is_archive: bool = False, is_editing: bool = False) -> bool:
         file_extension: str = FileManager.get_file_extension(file_path)
         extension_is_correct: bool = True
-        if is_editing:
+        if is_archive:
+            extension_is_correct = True if file_extension in FileManager.__ARCHIVE_EXTENSIONS else False
+        elif is_editing:
             extension_is_correct = True if (file_extension in FileManager.__IMAGE_EXTENSIONS or 
                                             file_extension in FileManager.__ARCHIVE_EXTENSIONS) else False
         else:
@@ -45,8 +50,10 @@ class FileManager:
         return FileManager.__IMAGE_EXTENSIONS + FileManager.__VIDEO_EXTENSIONS + FileManager.__ARCHIVE_EXTENSIONS
 
     @staticmethod
-    def get_file_name(file_path: str, with_extension: bool = False) -> str:
+    def get_file_name(file_path: str, with_extension: bool = False, is_without_id: bool = True) -> str:
         file_name: str = file_path.split('\\')[-1].split('.')[0]
+        if not is_without_id:
+            file_name: str = "_".join(file_name.split('_')[:-1])
         if with_extension:
             file_extension: str = FileManager.get_file_extension(file_path)
             return file_name + '.' + file_extension
@@ -59,23 +66,29 @@ class FileManager:
     @staticmethod
     def make_dir(file_path: str) -> str:
         file_name = FileManager.get_file_name(file_path)
-        directory_path: str = path.join(FileManager.__RESULT_FOLDER, file_name, 'files')
+        directory_path: str = path.join(FileManager.__RESULT_FOLDER, file_name, FileManager.__RESULT_FILES_FOLDER_NAME)
         makedirs(FileManager.__MEDIA_FOLDER, exist_ok=True)
         makedirs(FileManager.__UPLOADED_FOLDER, exist_ok=True)
         makedirs(directory_path, exist_ok=True)
         return directory_path
     
     @staticmethod
-    def save_file(file, file_path: str):
+    def save_file(file, file_name: str) -> str:
+        name: str = FileManager.get_file_name(file_name)
+        extension: str = FileManager.get_file_extension(file_name)
+        id: str = str(uuid4())
+        file_path: str = path.join(MEDIA_DIR_UPLOADED_FILES, f'{name}_{id}.{extension}')
         with open(file_path, "wb") as f:
             copyfileobj(file, f)
+        
+        return file_path
     
     @staticmethod
-    def save_annotation_data(annotation_data: dict, image_path: str,  image_shape: tuple[int, int],
-                                bboxes: list[list[float]], classes: list[int], class_definition: dict[int, str]):
+    def save_annotation_data(annotation_data: dict, image_path: str,  image_shape: tuple[int, int], bboxes: list[list[float]], 
+                             classes: list[int], class_definition: dict[int, str], is_archive_file: bool):
         
         def update_image_data(annotation_data:dict, image_path: str, image_shape: tuple[int, int]) -> int:
-            image_name: str = FileManager.get_file_name(image_path, with_extension=True)
+            image_name: str = FileManager.get_file_name(image_path, with_extension=True, is_without_id=is_archive_file)
             if image_name in annotation_data["info"]["images"]:
                 image_id: int = annotation_data["info"]["images"][image_name]
             else:
@@ -181,8 +194,9 @@ class FileManager:
     
     @staticmethod
     def create_archive(general_folder: str, file_path: str, path_is_relative: bool = False) -> str:
-        file_name: str = FileManager.get_file_name(file_path)
-        archive_path: str = f'{FileManager.__RESULT_FOLDER}/{file_name}/{file_name}.zip'
+        current_file_name: str = FileManager.get_file_name(file_path)
+        original_file_name: str = FileManager.get_file_name(file_path, is_without_id=False)
+        archive_path: str = f'{FileManager.__RESULT_FOLDER}/{current_file_name}/{original_file_name}.zip'
         with ZipFile(archive_path, 'w', ZIP_DEFLATED) as zip_archive:
             for root, _, files in walk(general_folder):
                 for file in files:
@@ -195,8 +209,8 @@ class FileManager:
         return archive_path
     
     @staticmethod
-    def save_image(image: ndarray, image_path: str, save_folder: str):
-        image_name: str = FileManager.get_file_name(image_path)
+    def save_image(image: ndarray, image_path: str, save_folder: str, is_archive_file: bool):
+        image_name: str = FileManager.get_file_name(image_path, is_without_id=is_archive_file)
         image_extension: str = FileManager.get_file_extension(image_name)
         save_path: str = f'{save_folder}/{image_name}'
         if image_extension == 'png':
@@ -205,8 +219,8 @@ class FileManager:
             imwrite(f'{save_path}.jpg', image, [IMWRITE_JPEG_QUALITY, 90])
 
     @staticmethod
-    def save_detection_data(file: str, classes: dict, amount: dict, file_path: str, is_video: bool = False):
-        image_name: str = FileManager.get_file_name(file_path)
+    def save_detection_data(file: str, classes: dict, amount: dict, file_path: str, is_archive_file: bool, is_video: bool = False):
+        image_name: str = FileManager.get_file_name(file_path, is_without_id=is_archive_file)
         with open(file, 'a+') as data_file:
             data_file.write(f'{image_name}\n')
             if is_video:
@@ -230,7 +244,7 @@ class FileManager:
     @staticmethod
     def unpack_archive(archive_path: str, save_folder: str) -> list[tuple[str, str]]:
         archive_name: str = FileManager.get_file_name(archive_path)
-        archive_extraction_folder: str = f'{FileManager.__RESULT_FOLDER}/{archive_name}/source'
+        archive_extraction_folder: str = f'{FileManager.__RESULT_FOLDER}/{archive_name}/{FileManager.__SOURCE_FILES_FOLDER_NAME}'
 
         with ZipFile(archive_path, 'r') as zip_archive:
             zip_archive.extractall(archive_extraction_folder)
@@ -245,6 +259,19 @@ class FileManager:
                 extracted_files.append((save_subfolder, source_file_path))
 
         return extracted_files
+    
+    @staticmethod
+    def prepare_image(file_path: str) -> list[str]:
+        current_file_name: str = FileManager.get_file_name(file_path)
+        original_file_name: str = FileManager.get_file_name(file_path, is_without_id=False)
+        file_extension: str = FileManager.get_file_extension(file_path)
+        source_folder: str = f'{FileManager.__RESULT_FOLDER}/{current_file_name}/{FileManager.__SOURCE_FILES_FOLDER_NAME}'
+        new_file_path: str = f'{source_folder}/{original_file_name}.{file_extension}'
+        full_new_file_path: str = path.abspath(new_file_path)
+        makedirs(source_folder, exist_ok=True)
+        copyfile(file_path, full_new_file_path)
+
+        return [full_new_file_path]
     
     @staticmethod
     def prepare_files(files_pathes: list[str]) -> tuple[bool, str] | tuple[bool, str, str, int]:
@@ -303,7 +330,7 @@ class FileManager:
         full_file_path: str = path.abspath(file_path)
         folders: list[str] = full_file_path.split('\\')
         media_folder_idx: int = folders.index('media')
-        general_save_path: str = f'{"\\".join(folders[0:media_folder_idx+3])}\\files'
+        general_save_path: str = f'{"\\".join(folders[0:media_folder_idx+3])}\\{FileManager.__RESULT_FILES_FOLDER_NAME}'
         if only_general_path:
             return general_save_path
         
@@ -324,7 +351,7 @@ class FileManager:
             x1, x2, y1, y2 = round(x1), round(x2), round(y1), round(y2)
             blue_colour_cv2_format: tuple[int, int, int] = (255, 0, 0)
             rectangle(image, (x1, y1), (x2, y2), blue_colour_cv2_format, 2)
-        FileManager.save_image(image, image_path, image_save_path)
+        FileManager.save_image(image, image_path, image_save_path, is_archive_file=True)
 
     @staticmethod
     def process_images(image_data: dict, class_data: dict, save_folder: str):
@@ -349,7 +376,7 @@ class FileManager:
                 class_data[int(key)] = class_data.pop(key)
 
             FileManager.annotate_image(image, full_image_path, image_save_path, bbox)
-            FileManager.save_annotation_data(annotation_data, full_image_path, (height, width), bbox, classes, class_data)
+            FileManager.save_annotation_data(annotation_data, full_image_path, (height, width), bbox, classes, class_data, is_archive_file=True)
         
         FileManager.write_annotation_to_json(annotation_data, save_folder)
 

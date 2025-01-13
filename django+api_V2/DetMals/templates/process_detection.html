@@ -56,11 +56,7 @@
           {% if is_list %}
             <h1>Произошла ошибка</h1>
             {% for string in error %}
-              {% if forloop.first %}
-                <h2>{{ string }}</h2>
-              {% else %}
-                <h2>{{ string }}</h2>
-              {% endif %}
+              <h2>{{ string }}</h2>
             {% endfor %}
           {% else %}
             <p>Ошибка: {{ error }}</p>

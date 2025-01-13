@@ -47,13 +47,15 @@ def edit_detection(request):
             status: bool = response_data["status"]
 
             if not status:
-                return render(request, "edit_detection.html", {"error": response_data["text"]})
+                is_list: bool = response_data["is_list"]
+                return render(request, "edit_detection.html", {"is_list": is_list, "error": response_data["text"]})
+            
             image_data: str = response_data["image_data"]
             class_data: str = response_data["class_data"]
             amount: int = response_data["amount"]
             return render(request, "annotation_tool.html", {"image_data": image_data, "class_data": class_data, "amount": amount,
                                                             "django_url": DJANGO_BASE_URL, "api_url": FASTAPI_COMPLETION_URL})
         else:
-            return render(request, "edit_detection.html", {"error": response.text})
+            return render(request, "edit_detection.html", {"is_list": False, "error": response.text})
     else:
         return render(request, "edit_detection.html", {'detection_editing_url': DJANGO_DETECTION_EDITING_URL})

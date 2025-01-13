@@ -10,7 +10,7 @@ class Model:
     def __init__(self, model_path: str) -> None:
         self.__model = YOLO(model_path)
 
-    def predict_image(self, image_path: str, save_folder: str, data_file: str, annotation_data: dict):
+    def predict_image(self, image_path: str, save_folder: str, data_file: str, annotation_data: dict, is_archive_file: bool):
 
         results = self.__model(image_path, verbose=False)
 
@@ -19,14 +19,14 @@ class Model:
         coordinates: list[list[float]] = results[0].boxes.xyxy.tolist()
         classes: list[int] = list(map(int, results[0].boxes.cls.tolist()))
         class_definition: dict[int, str] = self.__model.names
-        FileManager.save_image(image, image_path, save_folder)
-        FileManager.save_annotation_data(annotation_data, image_path, image_shape, coordinates, classes, class_definition)
+        FileManager.save_image(image, image_path, save_folder, is_archive_file)
+        FileManager.save_annotation_data(annotation_data, image_path, image_shape, coordinates, classes, class_definition, is_archive_file)
 
         detected_classes: dict = Counter(results[0].boxes.cls.tolist())
-        FileManager.save_detection_data(data_file, class_definition, detected_classes, image_path)
+        FileManager.save_detection_data(data_file, class_definition, detected_classes, image_path, is_archive_file)
 
-    def track_video(self, video_path: str, save_folder: str, data_file: str):
-        video_name: str = FileManager.get_file_name(video_path)
+    def track_video(self, video_path: str, save_folder: str, data_file: str, is_archive_file: bool):
+        video_name: str = FileManager.get_file_name(video_path, is_without_id=is_archive_file)
         output_video_path = f'{save_folder}/{video_name}.mp4'
 
         capture = VideoCapture(video_path)
@@ -65,4 +65,4 @@ class Model:
         output_video.release()
 
         classes: dict = self.__model.names
-        FileManager.save_detection_data(data_file, classes, object_counter, video_path, is_video=True)
+        FileManager.save_detection_data(data_file, classes, object_counter, video_path, is_archive_file, is_video=True)

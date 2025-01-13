@@ -27,7 +27,14 @@
 {% block content %}
 <div id="form-container">
   {% if error %}
-    <h1>Ошибка: {{ error }}</h1>
+    {% if is_list %}
+      <h1>Произошла ошибка</h1>
+      {% for string in error %}
+        <h2>{{ string }}</h2>
+      {% endfor %}
+    {% else %}
+      <p>Ошибка: {{ error }}</p>
+    {% endif %}
   {% else %}
     <h1>Загрузите архив с изображениями и аннотациями</h1>
   {% endif %}
