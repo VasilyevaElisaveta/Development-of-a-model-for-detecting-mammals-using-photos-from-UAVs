@@ -37,7 +37,7 @@ class_data = [
     {"value": 'penguin', "text": 'Пингивны', "is_selected": False}
 ]
 models_path = {
-    'deer': 'api/models/mammals.pt',
-    'cow': 'api/models/mammals.pt',
+    'deer': 'api/models/deers.pt',
+    'cow': 'api/models/cows.pt',
     'penguin': 'api/models/mammals.pt'
 }

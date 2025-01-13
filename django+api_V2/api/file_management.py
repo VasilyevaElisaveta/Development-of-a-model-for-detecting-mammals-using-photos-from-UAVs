@@ -4,13 +4,15 @@ from numpy import ndarray
 from cv2 import imwrite, imread, rectangle, IMWRITE_JPEG_QUALITY
 from json import dump, dumps, load, loads
 from shutil import copyfileobj
-from config import MEDIA_DIR_RESULT_FILES, BASE_DIR
+from config import BASE_DIR, MEDIA_DIR, MEDIA_DIR_UPLOADED_FILES, MEDIA_DIR_RESULT_FILES
 
 
 class FileManager:
     __IMAGE_EXTENSIONS: list[str] = ['png', 'jpg', 'jpeg', 'bmp', 'webp', 'tiff', 'tif']
     __VIDEO_EXTENSIONS: list[str] = ['mp4', 'asf', 'avi', 'm4v', 'mkv', 'mov', 'mpeg', 'mpg', 'ts', 'wmv', 'webm']
     __ARCHIVE_EXTENSIONS: list[str] = ['zip']
+    __MEDIA_FOLDER = MEDIA_DIR
+    __UPLOADED_FOLDER = MEDIA_DIR_UPLOADED_FILES
     __RESULT_FOLDER: str = MEDIA_DIR_RESULT_FILES
     __BASE_FOLDER: str = BASE_DIR
 
@@ -25,11 +27,12 @@ class FileManager:
         return [main_string, supported_image_extensions, supported_video_extensions, supported_archive_extensions]
     
     @staticmethod
-    def check_file_extension(file_path: str, is_archive: bool = False) -> bool:
+    def check_file_extension(file_path: str, is_editing: bool = False) -> bool:
         file_extension: str = FileManager.get_file_extension(file_path)
         extension_is_correct: bool = True
-        if is_archive:
-            extension_is_correct = False if file_extension not in FileManager.__ARCHIVE_EXTENSIONS else True
+        if is_editing:
+            extension_is_correct = True if (file_extension in FileManager.__IMAGE_EXTENSIONS or 
+                                            file_extension in FileManager.__ARCHIVE_EXTENSIONS) else False
         else:
             extension_is_correct = False if (file_extension not in FileManager.__IMAGE_EXTENSIONS and
                                             file_extension not in FileManager.__VIDEO_EXTENSIONS and
@@ -57,6 +60,8 @@ class FileManager:
     def make_dir(file_path: str) -> str:
         file_name = FileManager.get_file_name(file_path)
         directory_path: str = path.join(FileManager.__RESULT_FOLDER, file_name, 'files')
+        makedirs(FileManager.__MEDIA_FOLDER, exist_ok=True)
+        makedirs(FileManager.__UPLOADED_FOLDER, exist_ok=True)
         makedirs(directory_path, exist_ok=True)
         return directory_path
     
@@ -264,12 +269,12 @@ class FileManager:
                 result[amount] = {"bbox": [],
                                   "image_path": relative_path}
                 images_to_number[file_name] = amount
-
-        if annotation_file is None:
-            return (False, 'Annotation file is not exist')
         
         if len(images_to_number) == 0:
             return (False, 'There is no images')
+        
+        if annotation_file is None:
+            return (True, dumps(result), dumps(classes), amount)
         
         for image_obj in annotation_file["images"]:
             image_name: str = image_obj["file_name"]

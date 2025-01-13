@@ -37,7 +37,7 @@ async def process(file: UploadFile = File(...), class_name: str = Form(...)) -> 
 async def prepare(file: UploadFile = File(...)) -> JSONResponse:
     file_path: str = os_path.join(MEDIA_DIR_UPLOADED_FILES, file.filename)
 
-    if not FileManager.check_file_extension(file_path, is_archive=True):
+    if not FileManager.check_file_extension(file_path, is_editing=True):
         return JSONResponse(content={"status": False, "is_list": False, "text": FileManager.get_supported_file_extensions_message(is_archive=True)})
     
     FileManager.save_file(file.file, file_path)

@@ -435,7 +435,7 @@ class Management {
     let boundingBoxData = Management.#getCurrentBBoxData();
     
     let text = 'Выберите id класса или напишите свой в формате:\n"Имя класса: id класса"\n';
-    if (Management.#classData.length !== 0) {
+    if (Object.keys(Management.#classData).length !== 0) {
       text += 'Текущие классы:\n'
       for (let key in Management.#classData) {
         text += `${Management.#classData[key]}: ${key}\n`
