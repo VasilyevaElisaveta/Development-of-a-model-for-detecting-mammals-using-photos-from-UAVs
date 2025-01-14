@@ -494,24 +494,44 @@ class Management {
     };
   
     function addNewAnnotation(result) {
-      let scaleFactor = Management.#scaleFactor;
+      let classId;
       if (result.length === 2) {
-        boundingBoxData.push([[Management.#currentBox.startX / scaleFactor, 
-                              Management.#currentBox.startY / scaleFactor, 
-                              Management.#currentBox.width / scaleFactor, 
-                              Management.#currentBox.height / scaleFactor], result[1]]);
+        classId = result[1];
       } else {
         let className = result[1];
-        let classId = result[2];
+        classId = result[2];
         Management.#classData[String(classId)] = className;
-        boundingBoxData.push([[Management.#currentBox.startX / scaleFactor, 
-                              Management.#currentBox.startY / scaleFactor, 
-                              Management.#currentBox.width / scaleFactor, 
-                              Management.#currentBox.height / scaleFactor], classId]);
       };
-    
+      normalizeBBox();
+      boundingBoxData.push([[Management.#currentBox.startX, 
+                            Management.#currentBox.startY, 
+                            Management.#currentBox.width, 
+                            Management.#currentBox.height], classId]);
       Management.#currentBox.link = boundingBoxData.at(-1);
       Management.#currentBox.index = boundingBoxData.length - 1;
+    };
+
+    function normalizeBBox() {
+      let currentX = Management.#currentBox.startX;
+      let currentY = Management.#currentBox.startY;
+      let currentWidth = Management.#currentBox.width;
+      let currentHeight = Management.#currentBox.height;
+      let scaleFactor = Management.#scaleFactor;
+
+      if (currentWidth < 0) {
+        currentX = currentX + currentWidth;
+        currentWidth = Math.abs(currentWidth);
+      };
+
+      if (currentHeight < 0) {
+        currentY = currentY + currentHeight;
+        currentHeight = Math.abs(currentHeight);
+      };
+
+      Management.#currentBox.startX = currentX / scaleFactor;
+      Management.#currentBox.startY = currentY / scaleFactor;
+      Management.#currentBox.width = currentWidth / scaleFactor;
+      Management.#currentBox.height = currentHeight / scaleFactor;
     };
     
     function chageExistingAnnotation(result) {

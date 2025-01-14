@@ -174,7 +174,7 @@ class FileManager:
     
     @staticmethod
     def write_annotation_to_json(annotation_data: dict, save_path: str):
-        if len(annotation_data) == 0:
+        if annotation_data["info"]["last_image_id"] == 0:
             return
         
         file_path: str = path.join(save_path, "annotation.json")
@@ -295,6 +295,7 @@ class FileManager:
                 amount += 1
                 result[amount] = {"bbox": [],
                                   "image_path": relative_path}
+                print(relative_path)
                 images_to_number[file_name] = amount
         
         if len(images_to_number) == 0:
