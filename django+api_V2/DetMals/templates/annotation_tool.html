@@ -62,13 +62,33 @@
 
 {% block script %}
 <script>
-  let NewDjangoData = {
+  class NewDjangoData {
 
-    baseURL: '{{ django_url }}',
-    apiURL: '{{ api_url }}',
-    imageData: {{ image_data|safe }},
-    classData: {{ class_data|safe }},
-    totalImages: {{ amount }},
+    static #baseURL = '{{ django_url }}'
+    static #apiURL = '{{ api_url }}'
+    static #imageData = {{ image_data|safe }}
+    static #classData = {{ class_data|safe }}
+    static #totalImages = {{ amount }}
+
+    static get baseURL() {
+      return this.#baseURL;
+    };
+
+    static get apiURL() {
+      return this.#apiURL;
+    };
+
+    static get imageData() {
+      return this.#imageData;
+    };
+
+    static get classData() {
+      return this.#classData;
+    };
+
+    static get totalImages() {
+      return this.#totalImages;
+    };
   };
 
 </script>
