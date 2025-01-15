@@ -36,6 +36,36 @@
     justify-content: center;
     align-items: center;
   }
+
+  .handle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: blue;
+    cursor: pointer;
+    display: none;
+    z-index: 5;
+  }
+
+  .top-left {
+    top: -3px;
+    left: -3px;
+  }
+
+  .top-right {
+    top: -3px;
+    left: -3px;
+  }
+
+  .bottom-left {
+    top: -3px;
+    left: -3px;
+  }
+
+  .bottom-right {
+    top: -3px;
+    left: -3px;
+  }
 </style>
 <div id="annotation-tool">
   {% csrf_token %}
@@ -44,6 +74,11 @@
     <canvas id="bbox-layer" style="position: absolute; z-index: 2;"></canvas>
     <canvas id="crosshair-layer" style="position: absolute; z-index: 3;"></canvas>
     <canvas id="interactive-layer" style="position: absolute; z-index: 4;"></canvas>
+
+    <div class="handle top-left" data-index="1"></div>
+    <div class="handle top-right" data-index="2"></div>
+    <div class="handle bottom-left" data-index="3"></div>
+    <div class="handle bottom-right" data-index="4"></div>
   </div>
   <div id="info-panel">
     <p id="image-number">Изображение <span id="current-image"></span>/<span id="total-images"></span></p>

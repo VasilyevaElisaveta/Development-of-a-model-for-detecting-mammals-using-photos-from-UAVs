@@ -14,6 +14,12 @@ class Environment {
   static #changeClassButton = document.getElementById('change-class');
   static #nextButton = document.getElementById('next-button');
   static #previousButton = document.getElementById('previous-button');
+  static #completeButton = document.getElementById('complete-button');
+  static #topLeftHandle = document.querySelector('.top-left');
+  static #topRightHandle = document.querySelector('.top-right');
+  static #bottomLeftHandle = document.querySelector('.bottom-left');
+  static #bottomRightHandle = document.querySelector('.bottom-right');
+  static #handleSize = 6;
   static #screenWidth = window.innerWidth;
   static #screenHeight = window.innerHeight;
   static #canvasWidht = null;
@@ -49,6 +55,22 @@ class Environment {
 
   static get changeClassButton() {
     return this.#changeClassButton;
+  };
+
+  static get nextButton() {
+    return this.#nextButton;
+  };
+
+  static get completeButton() {
+    return this.#completeButton
+  };
+
+  static get previousButton() {
+    return this.#previousButton;
+  };
+
+  static getAllHandles() {
+    return [this.#topLeftHandle, this.#topRightHandle, this.#bottomLeftHandle, this.#bottomRightHandle]
   };
 
   static getAllCanvases() {
@@ -109,6 +131,28 @@ class Environment {
     document.getElementById('total-images').textContent = all;
   };
 
+  static setHandleVisability(value) {
+    document.querySelectorAll('.handle').forEach((handle) => {
+      handle.style.display = value;
+    });
+  };
+
+  static updateHandlesPosition(x, y, width, height) {
+    let halfHandleSize = Environment.#handleSize / 2;
+
+    Environment.#topLeftHandle.style.left = `${x - halfHandleSize}px`;
+    Environment.#topLeftHandle.style.top = `${y - halfHandleSize}px`;
+
+    Environment.#topRightHandle.style.left = `${x + width - halfHandleSize}px`;
+    Environment.#topRightHandle.style.top = `${y - halfHandleSize}px`;
+
+    Environment.#bottomLeftHandle.style.left = `${x - halfHandleSize}px`;
+    Environment.#bottomLeftHandle.style.top = `${y + height - halfHandleSize}px`;
+
+    Environment.#bottomRightHandle.style.left = `${x + width - halfHandleSize}px`;
+    Environment.#bottomRightHandle.style.top = `${y + height - halfHandleSize}px`;
+  };
+
   static createSuccessPage(data, baseURL) {
     let annotationTool = document.getElementById('annotation-tool');
     annotationTool.innerHTML = '';
@@ -117,13 +161,13 @@ class Environment {
     actionContainer.style.textAlign = 'center';
     actionContainer.style.marginTop = '20px';
   
-    const downloadButton = document.createElement('button');
+    let downloadButton = document.createElement('button');
     downloadButton.innerText = 'Скачать архив';
     downloadButton.classList.add('btn', 'btn-primary');
     downloadButton.style.marginRight = '10px';
   
     downloadButton.addEventListener('click', () => {
-        const link = document.createElement('a');
+        let link = document.createElement('a');
         link.href = baseURL + '/' + data.file_path;
         link.download = 'archive.zip';
         document.body.appendChild(link);
@@ -168,16 +212,11 @@ class Environment {
 
 class Drawing {
 
-  static #handleSize = 6;
   static #lineWidth = 2;
   static #boundingBoxColor = 'red';
-  static #handleColor = 'blue';
   static #crosshairColor = 'white';
   static #crosshairPattern = [20, 5];
 
-  static get handleSize() {
-    return this.#handleSize;
-  };
 
   static drawImage(imagePath, callback) {
     let image = new Image();
@@ -217,23 +256,6 @@ class Drawing {
     bBoxLayer.strokeStyle = Drawing.#boundingBoxColor;
     bBoxLayer.lineWidth = Drawing.#lineWidth;
     bBoxLayer.strokeRect(x, y, width, height);
-  };
-  
-  static drawHandles(currentBoundingBox, scaleFactor) {
-    let interactiveLayer = Environment.interactiveLayer;
-    let [width, height] = Environment.getCanvasSize();
-    let handleSize = Drawing.#handleSize;
-
-    interactiveLayer.clearRect(0, 0, width, height);
-    if (currentBoundingBox !== null) {
-      let [x, y, width, height] = currentBoundingBox[0];
-      
-      interactiveLayer.fillStyle = Drawing.#handleColor;
-      interactiveLayer.fillRect(x * scaleFactor - handleSize / 2, y * scaleFactor - handleSize / 2, handleSize, handleSize);
-      interactiveLayer.fillRect((x + width) * scaleFactor - handleSize / 2, y  * scaleFactor - handleSize / 2, handleSize, handleSize);
-      interactiveLayer.fillRect((x + width) * scaleFactor - handleSize / 2, (y + height)  * scaleFactor - handleSize / 2, handleSize, handleSize);
-      interactiveLayer.fillRect(x * scaleFactor - handleSize / 2, (y + height) * scaleFactor - handleSize / 2, handleSize, handleSize);
-    };
   };
   
   static drawCrosshair(mouseX, mouseY) {
@@ -281,7 +303,6 @@ class Drawing {
 
 class Management {
   static #isDrawing = false;
-  static #isDragging = false;
   static #scaleFactor = 1;
   static #horizontalSizeCoefficient = 0.55;
   static #verticalSizeCoefficient = 0.68;
@@ -302,7 +323,7 @@ class Management {
   };
 
   static init() {
-    Management.#attachEventListener();
+    Management.#attachCanvasEventListener();
     Management.#goToNextImage();
   }
 
@@ -349,12 +370,24 @@ class Management {
   };
   
   static #updateBBoxInfo() {
-    if (Management.#currentBox.link === null || Management.#isDrawing || Management.#isDragging) {
+    if (Management.#currentBox.link === null || Management.#isDrawing) {
       Environment.setBBoxInfoVisability('none')
     } else {
       let text = `Класс: ${Management.#classData[String(Management.#currentBox.link[1])]}`
       Environment.setBBoxInfoVisability('block');
       Environment.setBBoxInfoText(text)
+    };
+  };
+
+  static #updateHandlesInfo() {
+    if (Management.#currentBox.link === null || Management.#isDrawing) {
+      Environment.setHandleVisability('none');
+    } else {
+      let scaleFactor = Management.#scaleFactor;
+      let [x, y, width, height] = Management.#currentBox.link[0];
+      Environment.setHandleVisability('block');
+      Environment.updateHandlesPosition(x * scaleFactor, y * scaleFactor, width * scaleFactor, height * scaleFactor);
+      Management.#attachHandleEventListener();
     };
   };
   
@@ -379,6 +412,7 @@ class Management {
     });
     Management.#checkButtons();
     Management.#updateBBoxInfo();
+    Management.#updateHandlesInfo();
   
     Environment.setImageNumber(Management.#currentImageIndex, Management.#totalImages);
   };
@@ -404,6 +438,7 @@ class Management {
     });
     Management.#checkButtons();
     Management.#updateBBoxInfo();
+    Management.#updateHandlesInfo();
   
     Environment.setImageNumber(Management.#currentImageIndex, Management.#totalImages);
   };
@@ -555,14 +590,71 @@ class Management {
     let mouseX = event.clientX - left;
     let mouseY = event.clientY - top;
 
-    return [mouseX, mouseY]
-  }
+    return [mouseX, mouseY];
+  };
 
-  static #attachEventListener() {
+  static #attachHandleEventListener() {
+    let handles = Environment.getAllHandles();
+    handles.forEach((handle) => {
+      handle.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+
+        let handleIndex = event.target.dataset.index;
+        Management.#currentBox.handleIndex = handleIndex;
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+
+        function onMouseUp() {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        function onMouseMove(event) {
+          Drawing.cleanLayers(false, false, true, true);
+    
+          let [mouseX, mouseY] = Management.#getMouseCoordinates(event);
+          let scaleFactor = Management.#scaleFactor;
+          let [x, y, width, height] = Management.#currentBox.link[0]
+          switch (Management.#currentBox.handleIndex) {
+            case '1':
+              Management.#currentBox.link[0][0] = mouseX / scaleFactor;
+              Management.#currentBox.link[0][1] = mouseY / scaleFactor;
+              Management.#currentBox.link[0][2] = ((width + x) * scaleFactor - mouseX) / scaleFactor;
+              Management.#currentBox.link[0][3] = ((height + y) * scaleFactor - mouseY) / scaleFactor;
+              break;
+            case '2':
+              Management.#currentBox.link[0][1] = mouseY / scaleFactor;
+              Management.#currentBox.link[0][2] = (mouseX - x * scaleFactor) / scaleFactor;
+              Management.#currentBox.link[0][3] = ((height + y) * scaleFactor - mouseY) / scaleFactor;
+              break;
+            case '3':
+              Management.#currentBox.link[0][0] = mouseX / scaleFactor;
+              Management.#currentBox.link[0][2] = ((width + x) * scaleFactor - mouseX) / scaleFactor;
+              Management.#currentBox.link[0][3] = (mouseY - y * scaleFactor) / scaleFactor;
+              break;
+            case '4':
+              Management.#currentBox.link[0][2] = (mouseX - x * scaleFactor) / scaleFactor;
+              Management.#currentBox.link[0][3] = (mouseY - y * scaleFactor) / scaleFactor;
+              break;
+          };
+          
+          let boundingBoxData = Management.#getCurrentBBoxData();
+          Drawing.drawBoundingBoxes(boundingBoxData, scaleFactor);
+          Environment.updateHandlesPosition(x * scaleFactor, y * scaleFactor, width * scaleFactor, height * scaleFactor)
+        };
+      });
+    });
+  };
+
+  static #attachCanvasEventListener() {
 
     let interactiveCanvas = Environment.interactiveCanvas;
     let deleteButton = Environment.deleteButton;
     let changeClassButton = Environment.changeClassButton;
+    let previousButton = Environment.previousButton;
+    let nextButton = Environment.nextButton;
+    let completeButton = Environment.completeButton;
 
     interactiveCanvas.addEventListener('contextmenu', (event) => {
       event.preventDefault();
@@ -571,25 +663,18 @@ class Management {
     interactiveCanvas.addEventListener('mousedown', (event) => {
     
       let [currentX, currentY] = Management.#getMouseCoordinates(event);
-      Management.#currentBox.startX = currentX;
-      Management.#currentBox.startY = currentY;
     
       if (event.button === 2) {
         checkBBoxes(currentX, currentY);
-        Management.#updateBBoxInfo();
         Management.#isDrawing = false;
-        Management.#isDragging = false;
-        return;
+      } else {
+        Management.#currentBox.startX = currentX;
+        Management.#currentBox.startY = currentY;
+        Management.#isDrawing = true;
       };
-    
-      if (Management.#currentBox.link !== null && checkHandles(currentX, currentY)) {
-        Management.#isDragging = true;
-        Management.#isDrawing = false;
-        return;
-      };
-    
-      Management.#isDragging = false;
-      Management.#isDrawing = true;
+
+      Management.#updateBBoxInfo();
+      Management.#updateHandlesInfo();
 
       function checkBBoxes(userX, userY) {
     
@@ -606,7 +691,8 @@ class Management {
         for (let i = 0; i < boundingBoxData.length; i++) {
           let [x, y, width, height] = boundingBoxData[i][0];
     
-          if (userX >= x * scaleFactor && userX <= (x + width) * scaleFactor && userY >= y * scaleFactor && userY <= (y + height) * scaleFactor) {
+          if (userX >= x * scaleFactor && userX <= (x + width) * scaleFactor && 
+              userY >= y * scaleFactor && userY <= (y + height) * scaleFactor) {
             let distance = calculateVectorLength(userX, userY, (x + width / 2) * scaleFactor, (y + height / 2) * scaleFactor);
             if (distance < minDistance) {
               minDistance = distance;
@@ -619,53 +705,12 @@ class Management {
         Management.#currentBox.link = currentLink;
         Management.#currentBox.index = currentIndex;
       };
-    
-      function checkHandles(userX, userY) {
-        if (Management.#currentBox.link === null || Management.#isDrawing) return false;
-        let handleSize = Drawing.handleSize;
-        let scaleFactor = Management.#scaleFactor;
-        let [x, y, width, height] = Management.#currentBox.link[0];
-    
-        if (userX >= x * scaleFactor - handleSize / 2 &&
-            userX <= x * scaleFactor + handleSize / 2 && 
-            userY >= y * scaleFactor - handleSize / 2 && 
-            userY <= y * scaleFactor + handleSize / 2) {
-          Management.#currentBox.handleIndex = 1; 
-          return true;
-        };
-        if (userX >= (x + width) * scaleFactor - handleSize / 2 && 
-            userX <= (x + width) * scaleFactor + handleSize / 2 && 
-            userY >= y * scaleFactor - handleSize / 2 && 
-            userY <= y * scaleFactor + handleSize / 2) {
-          Management.#currentBox.handleIndex = 2;
-          return true;
-        };
-        if (userX >= x * scaleFactor - handleSize / 2 && 
-            userX <= x * scaleFactor + handleSize / 2 && 
-            userY >= (y + height) * scaleFactor - handleSize / 2 && 
-            userY <= (y + height) * scaleFactor + handleSize / 2) {
-          Management.#currentBox.handleIndex = 3;
-          return true;
-        };
-        if (userX >= (x + width) * scaleFactor - handleSize / 2 && 
-            userX <= (x + width) * scaleFactor + handleSize / 2 && 
-            userY >= (y + height) * scaleFactor - handleSize / 2 && 
-            userY <= (y + height) * scaleFactor + handleSize / 2) {
-          Management.#currentBox.handleIndex = 4;
-          return true;
-        };
-    
-        return false;
-      };
     });
     
     interactiveCanvas.addEventListener('mousemove', (event) => {
       
-      Management.#updateBBoxInfo();
       if (Management.#isDrawing) {
         processDrawing(event);
-      } else if (Management.#isDragging) {
-        processDragging(event)
       } else {
         let [mouseX, mouseY] = Management.#getMouseCoordinates(event);
         Drawing.drawCrosshair(mouseX, mouseY);
@@ -684,71 +729,26 @@ class Management {
         Drawing.drawCurrentBoundingBox(Management.#currentBox.startX, Management.#currentBox.startY, 
                                       Management.#currentBox.width, Management.#currentBox.height)
       };
-    
-      function processDragging(event) {
-        Drawing.cleanLayers(false, false, true, true);
-    
-        let [mouseX, mouseY] = Management.#getMouseCoordinates(event);
-        let scaleFactor = Management.#scaleFactor;
-        let [x, y, width, height] = Management.#currentBox.link[0]
-        switch (Management.#currentBox.handleIndex) {
-          case 1:
-            Management.#currentBox.link[0][0] = mouseX / scaleFactor;
-            Management.#currentBox.link[0][1] = mouseY / scaleFactor;
-            Management.#currentBox.link[0][2] = ((width + x) * scaleFactor - mouseX) / scaleFactor;
-            Management.#currentBox.link[0][3] = ((height + y) * scaleFactor - mouseY) / scaleFactor;
-            break;
-          case 2:
-            Management.#currentBox.link[0][1] = mouseY / scaleFactor;
-            Management.#currentBox.link[0][2] = (mouseX - x * scaleFactor) / scaleFactor;
-            Management.#currentBox.link[0][3] = ((height + y) * scaleFactor - mouseY) / scaleFactor;
-            break;
-          case 3:
-            Management.#currentBox.link[0][0] = mouseX / scaleFactor;
-            Management.#currentBox.link[0][2] = ((width + x) * scaleFactor - mouseX) / scaleFactor;
-            Management.#currentBox.link[0][3] = (mouseY - y * scaleFactor) / scaleFactor;
-            break;
-          case 4:
-            Management.#currentBox.link[0][2] = (mouseX - x * scaleFactor) / scaleFactor;
-            Management.#currentBox.link[0][3] = (mouseY - y * scaleFactor) / scaleFactor;
-            break;
-        };
-        
-        let boundingBoxData = Management.#getCurrentBBoxData();
-        Drawing.drawBoundingBoxes(boundingBoxData, scaleFactor);
-        Drawing.drawHandles(Management.#currentBox.link, scaleFactor);
-      };
     });
     
     interactiveCanvas.addEventListener('mouseup', (event) => {
     
       if (event.button === 2){
         Management.#isDrawing = false;
-        Management.#isDragging = false;
-        Drawing.drawHandles(Management.#currentBox.link, Management.#scaleFactor);
         Management.#updateBBoxInfo();
+        Management.#updateHandlesInfo();
         return;
       };
     
-      if (checkClick(event)) {
-        Management.#isDrawing = false;
-        Management.#isDragging = false;
-        return;
-      };
-    
-      if (Management.#isDrawing) {
+      if (Management.#isDrawing && !checkClick(event)) {
         Management.#processUserAnnotationClass();
       };
-    
-      Management.#isDragging = false;
-      Management.#isDrawing = false;
 
       let boundingBoxData = Management.#getCurrentBBoxData();
-      let currentBoundingBox = Management.#currentBox.link;
-      let scaleFactor = Management.#scaleFactor;
-      Drawing.drawBoundingBoxes(boundingBoxData, scaleFactor);
-      Drawing.drawHandles(currentBoundingBox, scaleFactor);
+      Management.#isDrawing = false;
+      Drawing.drawBoundingBoxes(boundingBoxData, Management.#scaleFactor);
       Management.#updateBBoxInfo();
+      Management.#updateHandlesInfo();
 
       function checkClick(event) {
         let [currentX, currentY] = Management.#getMouseCoordinates(event);
@@ -769,21 +769,21 @@ class Management {
         handleIndex: null
       };
       let boundingBoxData = Management.#getCurrentBBoxData();
-      let currentBoundingBox = Management.#currentBox.link;
       let scaleFactor = Management.#scaleFactor;
       Management.#updateBBoxInfo();
+      Management.#updateHandlesInfo();
       Drawing.drawBoundingBoxes(boundingBoxData, scaleFactor);
-      Drawing.drawHandles(currentBoundingBox, scaleFactor);
     });
     
     changeClassButton.addEventListener('click', () => {
       Management.#processUserAnnotationClass(false);
       Management.#updateBBoxInfo();
+      Management.#updateHandlesInfo();
     });
     
-    document.getElementById('previous-button').addEventListener('click', Management.#goToPreviousImage);
-    document.getElementById('next-button').addEventListener('click', Management.#goToNextImage);
-    document.getElementById('complete-button').addEventListener('click', Management.#completeAnnotation);
+    previousButton.addEventListener('click', Management.#goToPreviousImage);
+    nextButton.addEventListener('click', Management.#goToNextImage);
+    completeButton.addEventListener('click', Management.#completeAnnotation);
   }
 }
 
