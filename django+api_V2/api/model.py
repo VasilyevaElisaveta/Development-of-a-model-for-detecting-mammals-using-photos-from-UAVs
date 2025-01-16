@@ -8,7 +8,11 @@ from api.file_management import FileManager
 class Model:
 
     def __init__(self, model_path: str) -> None:
+        self.__model_path: str = model_path
         self.__model = YOLO(model_path)
+
+    def __reset_model(self):
+        self.__model = YOLO(self.__model_path)
 
     def predict_image(self, image_path: str, save_folder: str, data_file: str, annotation_data: dict, is_archive_file: bool):
 
@@ -66,3 +70,5 @@ class Model:
 
         classes: dict = self.__model.names
         FileManager.save_detection_data(data_file, classes, object_counter, video_path, is_archive_file, is_video=True)
+        
+        self.__reset_model()
