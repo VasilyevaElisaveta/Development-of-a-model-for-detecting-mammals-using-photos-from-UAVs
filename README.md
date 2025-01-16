@@ -46,12 +46,16 @@ Supported file extensions for annotation editing:
 </p>
 <hr>
 <h3>Output file</h3>
+<p>
 Output of detection is  archive:
 <li>txt file describing mammals amount on each image/video </li>
 <li>json file with annotations in COCO format(only for images)</li>
 <li>your annotated files</li>
+</p>
+<p>
 Output of detection editing is archive:
 <li>json file with annotations in COCO format</li>
 <li>your annotated files</li>
+</p>
 <hr>
 Link to Google Drive: https://drive.google.com/drive/folders/1SZ--uB5IblpWTe6l_Tmqg0XXZIprMRzH?usp=sharing
