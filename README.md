@@ -9,7 +9,7 @@ The last current version is "django+api_V2"<br>
 First,  install all requirements from <i>requirements.txt</i><br>
 
 ```python
-pip isntall -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Then from the root folder start the servers
