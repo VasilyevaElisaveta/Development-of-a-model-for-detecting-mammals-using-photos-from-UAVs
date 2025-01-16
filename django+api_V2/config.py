@@ -41,5 +41,5 @@ class_data = [
 models_path = {
     'deer': 'api/models/deers.pt',
     'cow': 'api/models/cows.pt',
-    'penguin': 'api/models/mammals.pt'
+    'penguin': 'api/models/penguins.pt'
 }
