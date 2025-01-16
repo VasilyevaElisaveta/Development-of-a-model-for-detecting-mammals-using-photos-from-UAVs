@@ -4,7 +4,7 @@ class EnvironmentProcessing {
     EnvironmentProcessing.#initializeSelectionForm();
     EnvironmentProcessing.#attachEventListeners();
   };
-
+  
   static #submitForm(event) {
     event.preventDefault();
   
@@ -79,6 +79,11 @@ class EnvironmentProcessing {
 
   static #attachEventListeners() {
     document.getElementById('submit-button').addEventListener('click', EnvironmentProcessing.#submitForm);
+    document.getElementById('file-input').addEventListener('change', function(event) {
+      const fileNameDisplay = document.getElementById('file-name-display');
+      const file = event.target.files[0];
+      fileNameDisplay.textContent = file ? file.name : 'Файл не выбран';
+    }); 
   };
 };
 

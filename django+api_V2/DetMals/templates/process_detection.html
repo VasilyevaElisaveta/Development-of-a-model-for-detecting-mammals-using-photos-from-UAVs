@@ -7,6 +7,7 @@
 
 {% block links %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
 {% endblock %}
 
 {% block header %}
@@ -16,11 +17,11 @@
   </div>
 </a>
 <nav>
-  <ul>
-    <li><a href="{% url 'homepage:index' %}">Главная</a></li>
-    <li><a href="{% url 'detection:detect_mammals' %}">Детекция</a></li>
-    <li><a href="{% url 'detection:edit_detection' %}">Редактировать детекцию</a></li>
-  </ul>
+  <div class="nav-container">
+    <a href="{% url 'homepage:index' %}" class="nav-item">Главная</a>
+    <a href="{% url 'detection:detect_mammals' %}" class="nav-item">Детекция</a>
+    <a href="{% url 'detection:edit_detection' %}" class="nav-item">Редактировать детекцию</a>
+  </div>
 </nav>
 {% endblock %}
 
@@ -28,6 +29,7 @@
 <div class="image-container">
   <div class="upload-button-container">
     <img src="{% static 'images/deers.jpg' %}" alt="Загрузить">
+    <div class="overlay"></div>
     <div id="button-container">
       {% if is_form %}
         <h1>Загрузите файл для обработки</h1>
@@ -39,12 +41,13 @@
             </select>
           </div>
           <div>
-            <label for="file-input">Выберите файл:</label>
+            <label for="file-input">Выбрать файл:</label>
+            <span id="file-name-display">Файл не выбран</span>
             <input type="file" id="file-input" name="file" />
-          </div>
-          <div>
-            <button id="submit-button">Отправить</button>
-          </div>
+        </div>
+        <div>
+            <button id="submit-button" type="submit">Отправить</button>
+        </div>
         </form>
       {% else %}
         {% if status %}

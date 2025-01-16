@@ -14,11 +14,13 @@
   </div>
 </a>
 <nav>
-  <ul>
-    <li><a href="{% url 'homepage:index' %}">Главная</a></li>
-    <li><a href="{% url 'detection:detect_mammals' %}">Детекция</a></li>
-    <li><a href="{% url 'detection:edit_detection' %}">Редактировать детекцию</a></li>
-  </ul>
+
+    <div class="nav-container">
+      <a href="{% url 'homepage:index' %}" class="nav-item">Главная</a>
+      <a href="{% url 'detection:detect_mammals' %}" class="nav-item">Детекция</a>
+      <a href="{% url 'detection:edit_detection' %}" class="nav-item">Редактировать детекцию</a>
+    </div>
+ 
 </nav>
 {% endblock %}
 
@@ -67,6 +69,7 @@
     left: -3px;
   }
 </style>
+
 <div id="annotation-tool">
   {% csrf_token %}
   <div id="canvas-container" style="position: relative; display: flex; justify-content: center; align-items: center; height: 100vh;">
@@ -80,18 +83,21 @@
     <div class="handle bottom-left" data-index="3"></div>
     <div class="handle bottom-right" data-index="4"></div>
   </div>
-  <div id="info-panel">
-    <p id="image-number">Изображение <span id="current-image"></span>/<span id="total-images"></span></p>
-    <button id="previous-button" style="display: none;">Перейти к предыдущему</button>
-    <button id="next-button" style="display: block;">Перейти к следующему</button>
-    <button id="complete-button">Завершить</button>
-  </div>
-  <div id="bbox-info" style="position: fixed; right: 20px; top: 50%; transform: translateY(-50%); padding: 10px; border: 1px solid #ccc; background-color: #fff; display: none;">
-    <h3>Annotation data</h3>
-    <p id="bbox-class"></p>
-    <button id="delete-bbox">Удалить</button>
-    <button id="change-class">Изменить класс</button>
-  </div>
+
+  <div id="annotation-tool">
+    <div id="info-panel">
+        <p id="image-number">Изображение <span id="current-image"></span>/<span id="total-images"></span></p>
+        <button id="previous-button" class="button">Перейти к предыдущему</button>
+        <button id="next-button" class="button">Перейти к следующему</button>
+        <button id="complete-button" class="button">Завершить</button>   
+      </div>
+      <div id="bbox-info">
+        <h3>Annotation data</h3>
+        <p id="bbox-class"></p>
+        <button id="delete-bbox" class="button">Удалить</button>
+        <button id="change-class" class="button">Изменить класс</button>
+      </div>
+</div>
 </div>
 {% endblock %}
 
@@ -125,7 +131,7 @@
       return this.#totalImages;
     };
   };
-
+   
 </script>
 <script src="{% static 'js/annotation_tool_script.js' %}"></script>
 {% endblock %}

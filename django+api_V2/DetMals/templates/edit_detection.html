@@ -12,20 +12,31 @@
 {% block header %}
 <a href="{% url 'homepage:index' %}">
   <div id="logo">
-    <img src="{% static 'images/logo1.png' %}" alt="Логотип" >
+    <img src="{% static 'images/logo1.png' %}" alt="Логотип">
   </div>
 </a>
 <nav>
-  <ul>
-    <li><a href="{% url 'homepage:index' %}">Главная</a></li>
-    <li><a href="{% url 'detection:detect_mammals' %}">Детекция</a></li>
-    <li><a href="{% url 'detection:edit_detection' %}">Редактировать детекцию</a></li>
-  </ul>
+  <div class="nav-container">
+    <a href="{% url 'homepage:index' %}" class="nav-item">Главная</a>
+    <a href="{% url 'detection:detect_mammals' %}" class="nav-item">Детекция</a>
+    <a href="{% url 'detection:edit_detection' %}" class="nav-item">Редактировать детекцию</a>
+  </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div id="form-container">
+
+<div id="instructions-container" class="page-green-text">
+  <h1>Инструкция по работе</h1>
+  <ul>
+    <li>Выберите файл с изображениями и аннотациями с помощью кнопки "Выбрать файл".</li>
+    <li>Убедитесь, что выбран правильный файл — его имя отобразится рядом с кнопкой.</li>
+    <li>Нажмите "Отправить", чтобы загрузить файл для обработки.</li>
+    <li>Дождитесь завершения обработки — статус отобразится на экране.</li>
+  </ul>
+</div>
+
+<div id="form-container" class="page-green-text">
   {% if error %}
     {% if is_list %}
     <h1>Произошла ошибка</h1>
@@ -39,14 +50,16 @@
     <h1>Загрузите архив с изображениями и аннотациями</h1>
   {% endif %}
 
-  <form id="file-upload-form">
+  <form id="file-upload-form" action="{% url 'detection:edit_detection' %}" method="POST" enctype="multipart/form-data">
+    >
     {% csrf_token %}
     <div>
-      <label for="file-input">Выберите файл:</label>
-      <input type="file" id="file-input" name="file" />
+      <label for="file-input" class="custom-button">Выберите файл:</label>
+      <span id="file-name-display">Файл не выбран</span>
+      <input type="file" id="file-input" name="file" style="display: none;"/>
     </div>
     <div>
-      <button id="submit-button">Отправить</button>
+      <button type="submit" id="submit-button">Отправить</button>
     </div>
   </form>
 </div>
@@ -56,12 +69,19 @@
 <script>
 
   class DjangoData {
-    static #detectionEditingURL = '{{ detection_editing_url }}';
+      static #detectionEditingURL = '{{ detection_editing_url }}';
 
-    static get detectionEditingURL() {
-      return this.#detectionEditingURL;
+      static get detectionEditingURL() {
+        return this.#detectionEditingURL;
+      };
     };
-  };
+
+
+  document.getElementById('file-input').addEventListener('change', function(event) {
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const file = event.target.files[0];
+    fileNameDisplay.textContent = file ? file.name : 'Файл не выбран';
+  });
 </script>
-<script src="{% static 'js/edit_detection_script.js' %}"></script>
+
 {% endblock %}

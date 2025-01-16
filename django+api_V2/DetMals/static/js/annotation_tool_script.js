@@ -163,7 +163,7 @@ class Environment {
   
     let downloadButton = document.createElement('button');
     downloadButton.innerText = 'Скачать архив';
-    downloadButton.classList.add('btn', 'btn-primary');
+    downloadButton.classList.add('upload-button');
     downloadButton.style.marginRight = '10px';
   
     downloadButton.addEventListener('click', () => {
@@ -177,7 +177,7 @@ class Environment {
   
     let editButton = document.createElement('button');
     editButton.innerText = 'Редактировать другую разметку';
-    editButton.classList.add('btn', 'btn-secondary');
+    editButton.classList.add('process-button');
     editButton.onclick = () => {window.location.href = window.location.href;}; 
   
     actionContainer.appendChild(downloadButton);
@@ -200,7 +200,7 @@ class Environment {
   
     let editButton = document.createElement('button');
     editButton.innerText = 'Редактировать другую разметку';
-    editButton.classList.add('btn', 'btn-secondary');
+    editButton.classList.add('process-button');
     editButton.onclick = () => {window.location.href = window.location.href;};
     
     actionContainer.appendChild(paragraph)
@@ -351,7 +351,7 @@ class Management {
 
     return [scaledWidth, scaledHeight]
   };
-
+  
   static #getCurrentBBoxData() {
     let currentImageData = Management.#imageData[String(Management.#currentImageIndex)];
     let boundingBoxData = currentImageData["bbox"];
