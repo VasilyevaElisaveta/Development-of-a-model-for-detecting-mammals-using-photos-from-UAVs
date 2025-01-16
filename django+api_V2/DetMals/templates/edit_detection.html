@@ -39,9 +39,9 @@
 <div id="form-container" class="page-green-text">
   {% if error %}
     {% if is_list %}
-    <h1>Произошла ошибка</h1>
+    <p>Произошла ошибка</p>
       {% for string in error %}
-        <h2>{{ string }}</h2>
+        <p>{{ string }}</p>
       {% endfor %}
     {% else %}
       <p>Ошибка: {{ error }}</p>
