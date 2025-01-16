@@ -67,8 +67,6 @@ class FileManager:
     def make_dir(file_path: str) -> str:
         file_name = FileManager.get_file_name(file_path)
         directory_path: str = path.join(FileManager.__RESULT_FOLDER, file_name, FileManager.__RESULT_FILES_FOLDER_NAME)
-        makedirs(FileManager.__MEDIA_FOLDER, exist_ok=True)
-        makedirs(FileManager.__UPLOADED_FOLDER, exist_ok=True)
         makedirs(directory_path, exist_ok=True)
         return directory_path
     
@@ -78,6 +76,9 @@ class FileManager:
         extension: str = FileManager.get_file_extension(file_name)
         id: str = str(uuid4())
         file_path: str = path.join(MEDIA_DIR_UPLOADED_FILES, f'{name}_{id}.{extension}')
+        
+        makedirs(FileManager.__MEDIA_FOLDER, exist_ok=True)
+        makedirs(FileManager.__UPLOADED_FOLDER, exist_ok=True)
         with open(file_path, "wb") as f:
             copyfileobj(file, f)
         
