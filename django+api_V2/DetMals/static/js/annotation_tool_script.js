@@ -667,14 +667,13 @@ class Management {
       if (event.button === 2) {
         checkBBoxes(currentX, currentY);
         Management.#isDrawing = false;
+        Management.#updateBBoxInfo();
+        Management.#updateHandlesInfo();
       } else {
         Management.#currentBox.startX = currentX;
         Management.#currentBox.startY = currentY;
         Management.#isDrawing = true;
       };
-
-      Management.#updateBBoxInfo();
-      Management.#updateHandlesInfo();
 
       function checkBBoxes(userX, userY) {
     
@@ -709,6 +708,8 @@ class Management {
     
     interactiveCanvas.addEventListener('mousemove', (event) => {
       
+      Management.#updateBBoxInfo();
+      Management.#updateHandlesInfo();
       if (Management.#isDrawing) {
         processDrawing(event);
       } else {
